@@ -10,7 +10,14 @@ pub enum PartKind {
     Hiragana(Part),
     Katakana(Part),
     Alphabet(Part),
+    ZenkakuAlphabet(Part),
     Number(Part),
+    ZenkakuNumber(Part),
+    LinkAnnotation(Part),
+    Annotation {
+        marker: Part,
+        desription: Vec<PartKind>,
+    },
     Other(Part),
     NewLine,
 }

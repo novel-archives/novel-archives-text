@@ -9,3 +9,5 @@ edition = "2018"
 [dependencies]
 derive-getters = "0.2.0"
 derive-new = "0.5.9"
+nom = "7.0.0"
+thiserror = "1.0.28"
