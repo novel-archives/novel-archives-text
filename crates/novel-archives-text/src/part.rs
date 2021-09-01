@@ -25,9 +25,14 @@ pub enum PartKind {
 #[derive(new, Getters)]
 pub struct Part {
     body: String,
-    point: Point,
+    range: Range,
 }
 
+#[derive(new, Getters)]
+pub struct Range {
+    start: Point,
+    end: Point,
+}
 #[derive(new, Getters)]
 pub struct Point {
     line: usize,
