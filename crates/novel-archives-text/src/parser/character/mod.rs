@@ -1,3 +1,4 @@
+use super::*;
 pub mod complete;
 
 pub use nom::character::is_alphabetic;
