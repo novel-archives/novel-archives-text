@@ -1,40 +1,35 @@
-pub enum PartKind {
-    Term(Part),
-    WithRuby {
-        parts: Vec<PartKind>,
-        ruby: Vec<PartKind>,
-        point: Point,
+pub enum TokenKind {
+    Term(Token),
+    Ruby {
+        parts: Vec<TokenKind>,
+        ruby: Vec<TokenKind>,
+        point: Position,
     },
-    Spase(Part),
-    Kanji(Part),
-    Hiragana(Part),
-    Katakana(Part),
-    Alphabet(Part),
-    ZenkakuAlphabet(Part),
-    Number(Part),
-    ZenkakuNumber(Part),
-    LinkAnnotation(Part),
+    Spase(Token),
+    Kanji(Token),
+    Hiragana(Token),
+    Katakana(Token),
+    Alphabet(Token),
+    ZenkakuAlphabet(Token),
+    Number(Token),
+    ZenkakuNumber(Token),
+    LinkAnnotation(Token),
     Annotation {
-        marker: Part,
-        desription: Vec<PartKind>,
+        marker: Token,
+        desription: Vec<TokenKind>,
     },
-    Other(Part),
+    Other(Token),
     NewLine,
 }
 
 #[derive(new, Getters)]
-pub struct Part {
+pub struct Token {
     body: String,
-    range: Range,
+    originel_position: Position,
 }
 
 #[derive(new, Getters)]
-pub struct Range {
-    start: Point,
-    end: Point,
-}
-#[derive(new, Getters)]
-pub struct Point {
+pub struct Position {
     line: usize,
-    col: usize,
+    byte_offset: usize,
 }

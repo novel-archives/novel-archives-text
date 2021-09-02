@@ -5,8 +5,6 @@ extern crate derive_new;
 extern crate derive_getters;
 
 pub mod parser;
-mod text;
 mod token;
 
-pub use text::*;
 pub use token::*;
