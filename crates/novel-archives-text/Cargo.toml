@@ -10,7 +10,8 @@ edition = "2018"
 derive-getters = "0.2.0"
 derive-new = "0.5.9"
 kanji = "1.1.0"
-nom = "7.0.0"
+nom = { version = "7", default-features = false }
+nom_locate = "4.0.0"
 thiserror = "1.0.28"
 
 [dev-dependencies]

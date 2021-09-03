@@ -1,29 +1,25 @@
-pub enum TokenKind<'a> {
-    Term(Token<'a>),
+pub enum Token<'a> {
+    Term(Span<'a>),
     Ruby {
-        parts: Vec<TokenKind<'a>>,
-        ruby: Vec<TokenKind<'a>>,
+        parts: Vec<Token<'a>>,
+        ruby: Vec<Token<'a>>,
         point: crate::Position,
     },
-    Spase(Token<'a>),
-    Kanji(Token<'a>),
-    Hiragana(Token<'a>),
-    Katakana(Token<'a>),
-    Alphabet(Token<'a>),
-    ZenkakuAlphabet(Token<'a>),
-    Number(Token<'a>),
-    ZenkakuNumber(Token<'a>),
-    LinkAnnotation(Token<'a>),
+    Spase(Span<'a>),
+    Kanji(Span<'a>),
+    Hiragana(Span<'a>),
+    Katakana(Span<'a>),
+    Alphabet(Span<'a>),
+    ZenkakuAlphabet(Span<'a>),
+    Number(Span<'a>),
+    ZenkakuNumber(Span<'a>),
+    LinkAnnotation(Span<'a>),
     Annotation {
-        marker: Token<'a>,
-        desription: Vec<TokenKind<'a>>,
+        marker: Span<'a>,
+        desription: Vec<Token<'a>>,
     },
-    Other(Token<'a>),
+    Other(Span<'a>),
     NewLine,
 }
 
-#[derive(new, Getters)]
-pub struct Token<'a> {
-    body: &'a str,
-    originel_position: crate::Position,
-}
+pub type Span<'a> = nom_locate::LocatedSpan<&'a str>;
