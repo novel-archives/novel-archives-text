@@ -35,19 +35,15 @@ mod tests {
             token::Span::new("hoge\nfoo"),
             nom::error::ErrorKind::Tag,
         ))))]
-    #[test_case("\n"=> Ok((new_test_result_span(1, 2, ""),new_test_result_span(0, 1, "\n"))))]
-    #[test_case("\nhoge"=> Ok((new_test_result_span(1, 2, "hoge"),new_test_result_span(0, 1, "\n"))))]
-    #[test_case("\n\n"=> Ok((new_test_result_span(1, 2, "\n"),new_test_result_span(0, 1, "\n"))))]
-    #[test_case("\r"=> Ok((new_test_result_span(1, 2, ""),new_test_result_span(0, 1, "\r"))))]
-    #[test_case("\rhoge"=> Ok((new_test_result_span(1, 2, "hoge"),new_test_result_span(0, 1, "\r"))))]
-    #[test_case("\r\r"=> Ok((new_test_result_span(1, 2, "\r"),new_test_result_span(0, 1, "\r"))))]
-    #[test_case("\r\n"=> Ok((new_test_result_span(2, 2, ""),new_test_result_span(0, 1, "\r\n"))))]
-    #[test_case("\r\n\r\n"=> Ok((new_test_result_span(2, 2, "\r\n"),new_test_result_span(0, 1, "\r\n"))))]
+    #[test_case("\n"=> Ok((token::test_helper::new_test_result_span(1, 2, ""),token::test_helper::new_test_result_span(0, 1, "\n"))))]
+    #[test_case("\nhoge"=> Ok((token::test_helper::new_test_result_span(1, 2, "hoge"),token::test_helper::new_test_result_span(0, 1, "\n"))))]
+    #[test_case("\n\n"=> Ok((token::test_helper::new_test_result_span(1, 2, "\n"),token::test_helper::new_test_result_span(0, 1, "\n"))))]
+    #[test_case("\r"=> Ok((token::test_helper::new_test_result_span(1, 2, ""),token::test_helper::new_test_result_span(0, 1, "\r"))))]
+    #[test_case("\rhoge"=> Ok((token::test_helper::new_test_result_span(1, 2, "hoge"),token::test_helper::new_test_result_span(0, 1, "\r"))))]
+    #[test_case("\r\r"=> Ok((token::test_helper::new_test_result_span(1, 2, "\r"),token::test_helper::new_test_result_span(0, 1, "\r"))))]
+    #[test_case("\r\n"=> Ok((token::test_helper::new_test_result_span(2, 2, ""),token::test_helper::new_test_result_span(0, 1, "\r\n"))))]
+    #[test_case("\r\n\r\n"=> Ok((token::test_helper::new_test_result_span(2, 2, "\r\n"),token::test_helper::new_test_result_span(0, 1, "\r\n"))))]
     fn any_newline_works(input: &str) -> nom::IResult<token::Span, token::Span> {
         any_newline(token::Span::new(input))
-    }
-
-    fn new_test_result_span(offset: usize, line: u32, fragment: &str) -> token::Span {
-        unsafe { token::Span::new_from_raw_offset(offset, line, fragment, ()) }
     }
 }
