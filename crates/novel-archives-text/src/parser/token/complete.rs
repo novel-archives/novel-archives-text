@@ -1,5 +1,5 @@
 use super::*;
-use character::complete;
+use extend_nom::character::complete;
 
 pub fn newline(input: Span) -> IResult {
     Ok(complete::any_newline(input).map(|(input, parsed)| (input, Token::NewLine(parsed)))?)
