@@ -1,3 +1,7 @@
+use super::*;
+pub mod complete;
+
+#[derive(Debug, PartialEq)]
 pub enum Token<'a> {
     Term(Span<'a>),
     Ruby {
