@@ -1,7 +1,7 @@
 use super::*;
 use nom::branch::alt;
 pub use nom::character::complete::*;
-pub fn newline(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn lf_or_crlf(input: token::Span) -> nom::IResult<token::Span, token::Span> {
     alt((
         nom::bytes::complete::tag("\n"),
         nom::bytes::complete::tag("\r\n"),
@@ -30,8 +30,8 @@ mod tests {
     #[test_case("\n\n"=> Ok((new_test_result_span(1, 2, "\n"),new_test_result_span(0, 1, "\n"))))]
     #[test_case("\r\n"=> Ok((new_test_result_span(2, 2, ""),new_test_result_span(0, 1, "\r\n"))))]
     #[test_case("\r\n\r\n"=> Ok((new_test_result_span(2, 2, "\r\n"),new_test_result_span(0, 1, "\r\n"))))]
-    fn newline_works(input: &str) -> nom::IResult<token::Span, token::Span> {
-        newline(token::Span::new(input))
+    fn lf_or_crlf_works(input: &str) -> nom::IResult<token::Span, token::Span> {
+        lf_or_crlf(token::Span::new(input))
     }
 
     fn new_test_result_span(offset: usize, line: u32, fragment: &str) -> token::Span {

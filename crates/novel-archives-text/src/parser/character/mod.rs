@@ -52,7 +52,7 @@ pub fn is_zenkaku_alphabetic(c: char) -> bool {
 }
 
 #[allow(clippy::manual_range_contains)]
-pub fn is_any_alphabetic(c: char) -> bool {
+pub fn is_zenkaku_hankaku_alphabetic(c: char) -> bool {
     is_zenkaku_alphabetic(c) || ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
 }
 
@@ -62,7 +62,7 @@ pub fn is_zenkaku_disit(c: char) -> bool {
 }
 
 #[allow(clippy::manual_range_contains)]
-pub fn is_any_disit(c: char) -> bool {
+pub fn is_zenkaku_hankaku_disit(c: char) -> bool {
     is_zenkaku_disit(c) || (c >= '0' && c <= '9')
 }
 
@@ -286,8 +286,8 @@ mod tests {
     #[test_case('ア'=>false)]
     #[test_case('塡'=>false)]
     #[test_case('漢'=>false)]
-    fn is_any_alphabetic_works(c: char) -> bool {
-        is_any_alphabetic(c)
+    fn is_zenkaku_hankaku_alphabetic_works(c: char) -> bool {
+        is_zenkaku_hankaku_alphabetic(c)
     }
 
     #[allow(clippy::bool_assert_comparison)]
@@ -342,8 +342,8 @@ mod tests {
     #[test_case('ア'=>false)]
     #[test_case('塡'=>false)]
     #[test_case('漢'=>false)]
-    fn is_any_disit_works(c: char) -> bool {
-        is_any_disit(c)
+    fn is_zenkaku_hankaku_disit_works(c: char) -> bool {
+        is_zenkaku_hankaku_disit(c)
     }
 
     #[allow(clippy::bool_assert_comparison)]
