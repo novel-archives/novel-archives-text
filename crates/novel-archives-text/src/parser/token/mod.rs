@@ -1,12 +1,17 @@
 use super::*;
 pub mod complete;
+pub mod iterator;
 
 #[derive(Debug, PartialEq)]
 pub enum Token<'a> {
     Term(Span<'a>),
     Ruby {
-        parts: Vec<Token<'a>>,
-        ruby: Vec<Token<'a>>,
+        body: iterator::RubyBodyIterator<'a>,
+        ruby: iterator::RubyIterator<'a>,
+    },
+    KanjiRuby {
+        kanji: Span<'a>,
+        ruby: iterator::RubyIterator<'a>,
     },
     Spase(Span<'a>),
     Kanji(Span<'a>),

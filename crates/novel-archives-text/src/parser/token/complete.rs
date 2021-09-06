@@ -4,7 +4,6 @@ use extend_nom::character::complete;
 pub fn newline(input: Span) -> IResult {
     Ok(complete::any_newline(input).map(|(input, parsed)| (input, Token::NewLine(parsed)))?)
 }
-
 pub fn kanji(input: Span) -> IResult {
     Ok(complete::kanji1(input).map(|(input, parsed)| (input, Token::Kanji(parsed)))?)
 }

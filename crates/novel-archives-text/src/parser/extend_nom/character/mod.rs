@@ -1,7 +1,7 @@
 use super::*;
 pub mod complete;
 
-pub fn is_space(c: char) -> bool {
+pub fn is_any_space(c: char) -> bool {
     c == ' ' || c == '\t' || c == '　'
 }
 
@@ -67,6 +67,15 @@ pub fn is_start_link_annotation(c: char) -> bool {
     c == '*' || c == '＊'
 }
 
+pub fn is_able_to_ruby(c: char) -> bool {
+    is_any_space(c)
+        || is_zenkaku_hankaku_disit(c)
+        || is_kanji(c)
+        || is_hiragana(c)
+        || is_katakana(c)
+        || is_zenkaku_hankaku_alphabetic(c)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -84,8 +93,8 @@ mod tests {
     #[test_case('９'=>false)]
     #[test_case('あ'=>false)]
     #[test_case('塡'=>false)]
-    fn is_space_works(c: char) -> bool {
-        is_space(c)
+    fn is_any_space_works(c: char) -> bool {
+        is_any_space(c)
     }
 
     #[allow(clippy::bool_assert_comparison)]

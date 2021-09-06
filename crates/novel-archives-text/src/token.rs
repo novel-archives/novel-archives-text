@@ -1,7 +1,7 @@
 pub enum TokenKind {
     Term(Token),
     Ruby {
-        parts: Vec<TokenKind>,
+        target: Vec<TokenKind>,
         ruby: Vec<TokenKind>,
         point: Position,
     },

@@ -70,6 +70,7 @@ mod tests {
         kanji1(token::Span::new(input))
     }
     #[test_case("漢字"=> Ok((token::test_helper::new_test_result_span(6, 1, ""),token::test_helper::new_test_result_span(0, 1, "漢字"))))]
+    #[test_case("邊󠄄"=> Ok((token::test_helper::new_test_result_span(3, 1, "\u{e0104}"),token::test_helper::new_test_result_span(0, 1, "邊"))))]
     #[test_case("漢字とひらがな"=> Ok((token::test_helper::new_test_result_span(6, 1, "とひらがな"),token::test_helper::new_test_result_span(0, 1, "漢字"))))]
     #[test_case("なか漢字なか"=> Ok((token::test_helper::new_test_result_span(0, 1, "なか漢字なか"),token::test_helper::new_test_result_span(0, 1, ""))))]
     #[test_case("かんじなし"=> Ok((token::test_helper::new_test_result_span(0, 1, "かんじなし"),token::test_helper::new_test_result_span(0, 1, ""))))]
