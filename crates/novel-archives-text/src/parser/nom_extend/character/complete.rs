@@ -32,6 +32,14 @@ pub fn kanji1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
     take_while1(is_kanji)(input)
 }
 
+pub fn hiragana0(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+    take_while(is_hiragana)(input)
+}
+
+pub fn hiragana1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+    take_while1(is_hiragana)(input)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -79,5 +87,26 @@ mod tests {
     #[test_case("01224"=> Ok((token::test_helper::new_test_result_span(0, 1, "01224"),token::test_helper::new_test_result_span(0, 1, ""))))]
     fn kanji0_works(input: &str) -> nom::IResult<token::Span, token::Span> {
         kanji0(token::Span::new(input))
+    }
+    #[test_case("ひらがな"=> Ok((token::test_helper::new_test_result_span(12, 1, ""),token::test_helper::new_test_result_span(0, 1, "ひらがな"))))]
+    #[test_case("ひらがなと漢字"=> Ok((token::test_helper::new_test_result_span(15, 1, "漢字"),token::test_helper::new_test_result_span(0, 1, "ひらがなと"))))]
+    #[test_case("中ひらがな中"=> Err(nom::Err::Error(nom::error::Error::new(
+            token::Span::new("中ひらがな中"),
+            nom::error::ErrorKind::TakeWhile1,
+        ))))]
+    #[test_case("漢字"=> Err(nom::Err::Error(nom::error::Error::new(
+            token::Span::new("漢字"),
+            nom::error::ErrorKind::TakeWhile1,
+        ))))]
+    fn hiragana1_works(input: &str) -> nom::IResult<token::Span, token::Span> {
+        hiragana1(token::Span::new(input))
+    }
+
+    #[test_case("ひらがな"=> Ok((token::test_helper::new_test_result_span(12, 1, ""),token::test_helper::new_test_result_span(0, 1, "ひらがな"))))]
+    #[test_case("ひらがなと漢字"=> Ok((token::test_helper::new_test_result_span(15, 1, "漢字"),token::test_helper::new_test_result_span(0, 1, "ひらがなと"))))]
+    #[test_case("alphabet"=> Ok((token::test_helper::new_test_result_span(0, 1, "alphabet"),token::test_helper::new_test_result_span(0, 1, ""))))]
+    #[test_case("01224"=> Ok((token::test_helper::new_test_result_span(0, 1, "01224"),token::test_helper::new_test_result_span(0, 1, ""))))]
+    fn hiragana0_works(input: &str) -> nom::IResult<token::Span, token::Span> {
+        hiragana0(token::Span::new(input))
     }
 }

@@ -8,6 +8,10 @@ pub fn kanji(input: Span) -> IResult {
     Ok(complete::kanji1(input).map(|(input, parsed)| (input, Token::Kanji(parsed)))?)
 }
 
+pub fn hiragana(input: Span) -> IResult {
+    Ok(complete::hiragana1(input).map(|(input, parsed)| (input, Token::Hiragana(parsed)))?)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -32,5 +36,12 @@ mod tests {
     #[test_case("かんじなし"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "かんじなし"),nom::error::ErrorKind::TakeWhile1)))]
     fn kanji_works(input: &str) -> IResult {
         kanji(token::Span::new(input))
+    }
+
+    #[test_case("ひらがな"=> Ok((token::test_helper::new_test_result_span(12, 1, ""),Token::Hiragana(token::test_helper::new_test_result_span(0, 1, "ひらがな")))))]
+    #[test_case("ひらがなと漢字"=> Ok((token::test_helper::new_test_result_span(15, 1, "漢字"),Token::Hiragana(token::test_helper::new_test_result_span(0, 1, "ひらがなと")))))]
+    #[test_case("中ひらがな中"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "中ひらがな中"),nom::error::ErrorKind::TakeWhile1)))]
+    fn hiragana_works(input: &str) -> IResult {
+        hiragana(token::Span::new(input))
     }
 }
