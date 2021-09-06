@@ -32,8 +32,9 @@ pub fn is_end_kanji_ruby(c: char) -> bool {
     c == ')' || c == '）'
 }
 
+#[allow(clippy::manual_range_contains)]
 pub fn is_kanji(c: char) -> bool {
-    kanji::is_kanji(&c)
+    kanji::is_kanji(&c) || (c >= '\u{e0100}' && c <= '\u{e01ef}')
 }
 
 pub fn is_hiragana(c: char) -> bool {
