@@ -1,6 +1,5 @@
 use super::*;
 use nom::branch::alt;
-pub use nom::character::complete::*;
 pub fn any_newline(input: token::Span) -> nom::IResult<token::Span, token::Span> {
     let result: nom::IResult<token::Span, token::Span> = alt((
         nom::bytes::complete::tag("\n"),

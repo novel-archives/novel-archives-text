@@ -1,9 +1,6 @@
 use super::*;
 pub mod complete;
 
-pub use nom::character::is_alphabetic;
-pub use nom::character::is_digit;
-
 pub fn is_space(c: char) -> bool {
     c == ' ' || c == '\t' || c == '　'
 }
@@ -69,8 +66,6 @@ pub fn is_zenkaku_hankaku_disit(c: char) -> bool {
 pub fn is_start_link_annotation(c: char) -> bool {
     c == '*' || c == '＊'
 }
-
-pub use nom::character::is_newline;
 
 #[cfg(test)]
 mod tests {
