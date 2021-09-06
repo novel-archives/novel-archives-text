@@ -1,5 +1,5 @@
 mod error;
-pub mod extend_nom;
+pub mod nom_extend;
 mod result;
 pub mod token;
 

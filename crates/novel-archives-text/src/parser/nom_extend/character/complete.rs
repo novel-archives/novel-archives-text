@@ -2,6 +2,7 @@ use super::*;
 use nom::branch::alt;
 use nom::bytes::complete::take_while;
 use nom::bytes::complete::take_while1;
+pub use nom::character::complete::*;
 pub fn any_newline(input: token::Span) -> nom::IResult<token::Span, token::Span> {
     let result: nom::IResult<token::Span, token::Span> = alt((
         nom::bytes::complete::tag("\n"),

@@ -1,5 +1,6 @@
 use super::*;
 pub mod complete;
+pub use nom::character::*;
 
 pub fn is_any_space(c: char) -> bool {
     c == ' ' || c == '\t' || c == '　'
