@@ -57,23 +57,23 @@ pub fn is_katakana(c: char) -> bool {
 }
 
 #[allow(clippy::manual_range_contains)]
-pub fn is_zenkaku_alphabetic(c: char) -> bool {
+pub fn is_wide_alphabetic(c: char) -> bool {
     (c >= 'ａ' && c <= 'ｚ') || (c >= 'Ａ' && c <= 'Ｚ')
 }
 
 #[allow(clippy::manual_range_contains)]
-pub fn is_zenkaku_hankaku_alphabetic(c: char) -> bool {
-    is_zenkaku_alphabetic(c) || ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+pub fn is_wide_half_alphabetic(c: char) -> bool {
+    is_wide_alphabetic(c) || ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
 }
 
 #[allow(clippy::manual_range_contains)]
-pub fn is_zenkaku_disit(c: char) -> bool {
+pub fn is_wide_disit(c: char) -> bool {
     c >= '０' && c <= '９'
 }
 
 #[allow(clippy::manual_range_contains)]
-pub fn is_zenkaku_hankaku_disit(c: char) -> bool {
-    is_zenkaku_disit(c) || (c >= '0' && c <= '9')
+pub fn is_wide_half_disit(c: char) -> bool {
+    is_wide_disit(c) || (c >= '0' && c <= '9')
 }
 
 pub fn is_start_link_annotation(c: char) -> bool {
@@ -82,11 +82,11 @@ pub fn is_start_link_annotation(c: char) -> bool {
 
 pub fn is_able_to_ruby(c: char) -> bool {
     is_any_space(c)
-        || is_zenkaku_hankaku_disit(c)
+        || is_wide_half_disit(c)
         || is_kanji(c)
         || is_hiragana(c)
         || is_katakana(c)
-        || is_zenkaku_hankaku_alphabetic(c)
+        || is_wide_half_alphabetic(c)
 }
 
 #[cfg(test)]
@@ -95,8 +95,8 @@ mod tests {
     use test_case::test_case;
 
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case(' '=>true;"hankaku_space")]
-    #[test_case('　'=>true;"zenkaku_space")]
+    #[test_case(' '=>true;"half_space")]
+    #[test_case('　'=>true;"wide_space")]
     #[test_case('\t'=>true;"tab")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
@@ -111,8 +111,8 @@ mod tests {
     }
 
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('|'=>true;"hankaku_pipe")]
-    #[test_case('｜'=>true;"zenkaku_pipe")]
+    #[test_case('|'=>true;"half_pipe")]
+    #[test_case('｜'=>true;"wide_pipe")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('0'=>false)]
@@ -126,8 +126,8 @@ mod tests {
     }
 
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('$'=>true;"hankaku_$")]
-    #[test_case('＄'=>true;"zenkaku_＄")]
+    #[test_case('$'=>true;"half_$")]
+    #[test_case('＄'=>true;"wide_＄")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('0'=>false)]
@@ -140,8 +140,8 @@ mod tests {
         is_start_annotation(c)
     }
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('$'=>true;"hankaku_$")]
-    #[test_case('＄'=>true;"zenkaku_＄")]
+    #[test_case('$'=>true;"half_$")]
+    #[test_case('＄'=>true;"wide_＄")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('0'=>false)]
@@ -182,8 +182,8 @@ mod tests {
         is_end_ruby(c)
     }
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('('=>true;"hankaku")]
-    #[test_case('（'=>true;"zenkaku")]
+    #[test_case('('=>true;"half")]
+    #[test_case('（'=>true;"wide")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('0'=>false)]
@@ -196,8 +196,8 @@ mod tests {
         is_start_kanji_ruby(c)
     }
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case(')'=>true;"hankaku")]
-    #[test_case('）'=>true;"zenkaku")]
+    #[test_case(')'=>true;"half")]
+    #[test_case('）'=>true;"wide")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('0'=>false)]
@@ -210,8 +210,8 @@ mod tests {
         is_end_kanji_ruby(c)
     }
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('('=>false;"hankaku")]
-    #[test_case('（'=>false;"zenkaku")]
+    #[test_case('('=>false;"half")]
+    #[test_case('（'=>false;"wide")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('0'=>false)]
@@ -225,8 +225,8 @@ mod tests {
         is_kanji(c)
     }
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('('=>false;"hankaku")]
-    #[test_case('（'=>false;"zenkaku")]
+    #[test_case('('=>false;"half")]
+    #[test_case('（'=>false;"wide")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('0'=>false)]
@@ -241,8 +241,8 @@ mod tests {
         is_hiragana(c)
     }
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('('=>false;"hankaku")]
-    #[test_case('（'=>false;"zenkaku")]
+    #[test_case('('=>false;"half")]
+    #[test_case('（'=>false;"wide")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('0'=>false)]
@@ -257,8 +257,8 @@ mod tests {
         is_katakana(c)
     }
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('('=>false;"hankaku")]
-    #[test_case('（'=>false;"zenkaku")]
+    #[test_case('('=>false;"half")]
+    #[test_case('（'=>false;"wide")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('ａ'=>true)]
@@ -277,13 +277,13 @@ mod tests {
     #[test_case('ア'=>false)]
     #[test_case('塡'=>false)]
     #[test_case('漢'=>false)]
-    fn is_zenkaku_alphabetic_works(c: char) -> bool {
-        is_zenkaku_alphabetic(c)
+    fn is_wide_alphabetic_works(c: char) -> bool {
+        is_wide_alphabetic(c)
     }
 
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('('=>false;"hankaku")]
-    #[test_case('（'=>false;"zenkaku")]
+    #[test_case('('=>false;"half")]
+    #[test_case('（'=>false;"wide")]
     #[test_case('a'=>true)]
     #[test_case('b'=>true)]
     #[test_case('z'=>true)]
@@ -303,13 +303,13 @@ mod tests {
     #[test_case('ア'=>false)]
     #[test_case('塡'=>false)]
     #[test_case('漢'=>false)]
-    fn is_zenkaku_hankaku_alphabetic_works(c: char) -> bool {
-        is_zenkaku_hankaku_alphabetic(c)
+    fn is_wide_half_alphabetic_works(c: char) -> bool {
+        is_wide_half_alphabetic(c)
     }
 
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('('=>false;"hankaku")]
-    #[test_case('（'=>false;"zenkaku")]
+    #[test_case('('=>false;"half")]
+    #[test_case('（'=>false;"wide")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('ａ'=>false)]
@@ -330,13 +330,13 @@ mod tests {
     #[test_case('ア'=>false)]
     #[test_case('塡'=>false)]
     #[test_case('漢'=>false)]
-    fn is_zenkaku_disit_works(c: char) -> bool {
-        is_zenkaku_disit(c)
+    fn is_wide_disit_works(c: char) -> bool {
+        is_wide_disit(c)
     }
 
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('('=>false;"hankaku")]
-    #[test_case('（'=>false;"zenkaku")]
+    #[test_case('('=>false;"half")]
+    #[test_case('（'=>false;"wide")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('ａ'=>false)]
@@ -359,15 +359,15 @@ mod tests {
     #[test_case('ア'=>false)]
     #[test_case('塡'=>false)]
     #[test_case('漢'=>false)]
-    fn is_zenkaku_hankaku_disit_works(c: char) -> bool {
-        is_zenkaku_hankaku_disit(c)
+    fn is_wide_half_disit_works(c: char) -> bool {
+        is_wide_half_disit(c)
     }
 
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case('('=>false;"hankaku")]
-    #[test_case('（'=>false;"zenkaku")]
-    #[test_case('*'=>true;"hankaku_link_annotation")]
-    #[test_case('＊'=>true;"zenkaku_link_annotation")]
+    #[test_case('('=>false;"half")]
+    #[test_case('（'=>false;"wide")]
+    #[test_case('*'=>true;"half_link_annotation")]
+    #[test_case('＊'=>true;"wide_link_annotation")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('ａ'=>false)]
