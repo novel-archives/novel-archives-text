@@ -76,6 +76,14 @@ pub fn is_wide_half_disit(c: char) -> bool {
     is_wide_disit(c) || (c >= '0' && c <= '9')
 }
 
+pub fn wide_half_disit_char_to_disit(c: char) -> Option<u32> {
+    c.to_digit(10).or(if is_wide_disit(c) {
+        Some(c as u32 - '０' as u32)
+    } else {
+        None
+    })
+}
+
 pub fn is_start_link_annotation(c: char) -> bool {
     c == '*' || c == '＊'
 }
@@ -392,5 +400,15 @@ mod tests {
     #[test_case('漢'=>false)]
     fn is_start_link_annotation_works(c: char) -> bool {
         is_start_link_annotation(c)
+    }
+
+    #[test_case('０'=>Some(0))]
+    #[test_case('１'=>Some(1))]
+    #[test_case('９'=>Some(9))]
+    #[test_case('0'=>Some(0))]
+    #[test_case('9'=>Some(9))]
+    #[test_case('h'=>None)]
+    fn wide_half_disit_to_disit_works(c: char) -> Option<u32> {
+        wide_half_disit_char_to_disit(c)
     }
 }
