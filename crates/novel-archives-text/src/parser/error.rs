@@ -4,6 +4,8 @@ use thiserror::Error;
 pub enum Error<'a> {
     #[error("incomplete")]
     Incomplete,
+    #[error("digit_overflow:{0:?}")]
+    DigitOverflow(token::Span<'a>),
     #[error("nom_error:{0:?},{1:?}")]
     Nom(token::Span<'a>, nom::error::ErrorKind),
 }

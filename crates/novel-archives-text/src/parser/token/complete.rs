@@ -1,4 +1,6 @@
 use super::*;
+use nom::bytes::complete::take_while1;
+use nom_extend::character;
 use nom_extend::character::complete;
 
 pub fn newline(input: Span) -> IResult {
@@ -14,6 +16,24 @@ pub fn hiragana(input: Span) -> IResult {
 
 pub fn katakana(input: Span) -> IResult {
     Ok(complete::katakana1(input).map(|(input, parsed)| (input, Token::Katakana(parsed)))?)
+}
+
+pub fn half_and_wide_disit(input: Span) -> IResult {
+    let (input, parsed) = take_while1(character::is_wide_half_disit)(input)?;
+    Ok((
+        input,
+        Token::Digit {
+            body: parsed,
+            digit: parsed
+                .chars()
+                .map(character::wide_half_disit_char_to_disit)
+                .map(|o| o.unwrap() as usize)
+                .fold(Some(0), |s, v| {
+                    s.and_then(|s: usize| s.checked_mul(10).and_then(|new_s| new_s.checked_add(v)))
+                })
+                .ok_or(Error::DigitOverflow(parsed))?,
+        },
+    ))
 }
 
 #[cfg(test)]
@@ -54,5 +74,14 @@ mod tests {
     #[test_case("中カタカナ中"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
     fn katakana_works(input: &str) -> IResult {
         katakana(token::Span::new(input))
+    }
+
+    #[test_case("１３32"=> Ok((token::test_helper::new_test_result_span(8, 1, ""),Token::Digit{body:token::test_helper::new_test_result_span(0, 1, "１３32"),digit:1332})))]
+    #[test_case("１３32ほげ"=> Ok((token::test_helper::new_test_result_span(8, 1, "ほげ"),Token::Digit{body:token::test_helper::new_test_result_span(0, 1, "１３32"),digit:1332})))]
+    #[test_case("ふが"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "ふが"),nom::error::ErrorKind::TakeWhile1)))]
+    #[test_case("999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+        => Err(Error::DigitOverflow(token::test_helper::new_test_result_span(0, 1, "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"))))]
+    fn half_and_wide_disit_works(input: &str) -> IResult {
+        half_and_wide_disit(token::Span::new(input))
     }
 }

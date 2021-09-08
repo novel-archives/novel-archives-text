@@ -72,16 +72,23 @@ pub fn is_wide_disit(c: char) -> bool {
 }
 
 #[allow(clippy::manual_range_contains)]
+pub fn is_half_disit(c: char) -> bool {
+    c >= '0' && c <= '9'
+}
+
+#[allow(clippy::manual_range_contains)]
 pub fn is_wide_half_disit(c: char) -> bool {
-    is_wide_disit(c) || (c >= '0' && c <= '9')
+    is_wide_disit(c) || is_half_disit(c)
 }
 
 pub fn wide_half_disit_char_to_disit(c: char) -> Option<u32> {
-    c.to_digit(10).or(if is_wide_disit(c) {
+    if is_half_disit(c) {
+        Some(c as u32 - '0' as u32)
+    } else if is_wide_disit(c) {
         Some(c as u32 - '０' as u32)
     } else {
         None
-    })
+    }
 }
 
 pub fn is_start_link_annotation(c: char) -> bool {

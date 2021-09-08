@@ -1,3 +1,3 @@
 use super::*;
 
-pub type IResult<'a> = Result<(token::Span<'a>, token::Token<'a>), error::Error<'a>>;
+pub type IResult<'a, T = token::Token<'a>> = Result<(token::Span<'a>, T), error::Error<'a>>;

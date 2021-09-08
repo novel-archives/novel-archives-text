@@ -19,7 +19,10 @@ pub enum Token<'a> {
     Katakana(Span<'a>),
     Alphabet(Span<'a>),
     ZenkakuAlphabet(Span<'a>),
-    Number(Span<'a>),
+    Digit {
+        body: Span<'a>,
+        digit: usize,
+    },
     ZenkakuNumber(Span<'a>),
     LinkAnnotation(Span<'a>),
     Annotation {
