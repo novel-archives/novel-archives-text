@@ -95,13 +95,12 @@ pub fn is_start_link_annotation(c: char) -> bool {
     c == '*' || c == '＊'
 }
 
-pub fn is_able_to_ruby(c: char) -> bool {
-    is_any_space(c)
-        || is_wide_half_disit(c)
-        || is_kanji(c)
-        || is_hiragana(c)
-        || is_katakana(c)
-        || is_wide_half_alphabetic(c)
+pub fn is_able_to_ruby(b: u8) -> bool {
+    !is_any_newline(b)
+}
+
+pub fn is_any_newline(b: u8) -> bool {
+    b == b'\r' || b == b'\n'
 }
 
 #[cfg(test)]
@@ -417,5 +416,21 @@ mod tests {
     #[test_case('h'=>None)]
     fn wide_half_disit_to_disit_works(c: char) -> Option<u32> {
         wide_half_disit_char_to_disit(c)
+    }
+
+    #[allow(clippy::bool_assert_comparison)]
+    #[test_case(b'\n'=>true)]
+    #[test_case(b'\r'=>true)]
+    #[test_case(b'\t'=>false)]
+    fn is_any_newline_works(b: u8) -> bool {
+        is_any_newline(b)
+    }
+
+    #[allow(clippy::bool_assert_comparison)]
+    #[test_case(b'\n'=>false)]
+    #[test_case(b'\r'=>false)]
+    #[test_case(b'\t'=>true)]
+    fn is_able_to_ruby_works(b: u8) -> bool {
+        is_able_to_ruby(b)
     }
 }
