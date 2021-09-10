@@ -13,7 +13,7 @@ pub enum Token<'a> {
         body: Span<'a>,
         ruby: iterator::RubyIterator<'a>,
     },
-    Spase(Span<'a>),
+    Space(Span<'a>),
     Kanji(Span<'a>),
     Hiragana(Span<'a>),
     Katakana(Span<'a>),
@@ -24,7 +24,9 @@ pub enum Token<'a> {
         digit: usize,
     },
     WideDigit(Span<'a>),
-    LinkAnnotation(Vec<Token<'a>>),
+    LinkAnnotation {
+        body: Vec<Token<'a>>,
+    },
     Annotation {
         body: Vec<Token<'a>>,
         desription: Vec<Token<'a>>,

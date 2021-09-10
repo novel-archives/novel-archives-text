@@ -30,6 +30,10 @@ pub fn half_and_wide_disit(input: Span) -> IResult {
     })
 }
 
+pub fn space(input: Span) -> IResult {
+    Ok(complete::any_space1(input).map(|(input, parsed)| (input, Token::Space(parsed)))?)
+}
+
 pub fn half_and_wide_usize(input: Span) -> IResult<(Span, usize)> {
     let (input, parsed) = take_while1(character::is_wide_half_disit)(input)?;
     Ok((
@@ -95,5 +99,12 @@ mod tests {
         => Err(Error::DigitOverflow(token::test_helper::new_test_result_span(0, 1, "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"))))]
     fn half_and_wide_disit_works(input: &str) -> IResult {
         half_and_wide_disit(token::Span::new(input))
+    }
+
+    #[test_case(" 　\t"=> Ok((token::test_helper::new_test_result_span(5, 1, ""),Token::Space(token::test_helper::new_test_result_span(0, 1, " 　\t")))))]
+    #[test_case(" 　\tカタカナと漢字"=> Ok((token::test_helper::new_test_result_span(5, 1, "カタカナと漢字"),Token::Space(token::test_helper::new_test_result_span(0, 1, " 　\t")))))]
+    #[test_case("中カタカナ中"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
+    fn space_works(input: &str) -> IResult {
+        space(token::Span::new(input))
     }
 }
