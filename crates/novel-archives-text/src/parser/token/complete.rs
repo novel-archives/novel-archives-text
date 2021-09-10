@@ -19,12 +19,24 @@ pub fn katakana(input: Span) -> IResult {
 }
 
 pub fn half_and_wide_disit(input: Span) -> IResult {
+    half_and_wide_usize(input).map(|(input, (parsed, digit))| {
+        (
+            input,
+            Token::Digit {
+                body: parsed,
+                digit,
+            },
+        )
+    })
+}
+
+pub fn half_and_wide_usize(input: Span) -> IResult<(Span, usize)> {
     let (input, parsed) = take_while1(character::is_wide_half_disit)(input)?;
     Ok((
         input,
-        Token::Digit {
-            body: parsed,
-            digit: parsed
+        (
+            parsed,
+            parsed
                 .chars()
                 .map(character::wide_half_disit_char_to_disit)
                 .map(|o| o.unwrap() as usize)
@@ -32,7 +44,7 @@ pub fn half_and_wide_disit(input: Span) -> IResult {
                     s.and_then(|s: usize| s.checked_mul(10).and_then(|new_s| new_s.checked_add(v)))
                 })
                 .ok_or(Error::DigitOverflow(parsed))?,
-        },
+        ),
     ))
 }
 
