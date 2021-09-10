@@ -44,9 +44,7 @@ pub fn half_and_wide_usize(input: Span) -> IResult<(Span, usize)> {
                 .chars()
                 .map(character::wide_half_disit_char_to_disit)
                 .map(|o| o.unwrap() as usize)
-                .fold(Some(0), |s, v| {
-                    s.and_then(|s: usize| s.checked_mul(10).and_then(|new_s| new_s.checked_add(v)))
-                })
+                .fold(Some(0_usize), |s, v| s?.checked_mul(10)?.checked_add(v))
                 .ok_or(Error::DigitOverflow(parsed))?,
         ),
     ))
