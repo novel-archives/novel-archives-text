@@ -23,9 +23,9 @@ pub enum Token<'a> {
         body: Span<'a>,
         digit: usize,
     },
-    WideDigit(Span<'a>),
     LinkAnnotation {
         body: Vec<Token<'a>>,
+        lined_at: usize,
     },
     Annotation {
         body: Vec<Token<'a>>,
