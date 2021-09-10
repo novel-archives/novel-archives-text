@@ -48,6 +48,14 @@ pub fn katakana1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
     take_while1(is_katakana)(input)
 }
 
+pub fn any_space0(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+    take_while(is_any_space)(input)
+}
+
+pub fn any_space1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+    take_while1(is_any_space)(input)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

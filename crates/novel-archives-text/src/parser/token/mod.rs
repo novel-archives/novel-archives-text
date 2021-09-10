@@ -10,7 +10,7 @@ pub enum Token<'a> {
         ruby: iterator::RubyIterator<'a>,
     },
     KanjiRuby {
-        kanji: Span<'a>,
+        body: Span<'a>,
         ruby: iterator::RubyIterator<'a>,
     },
     Spase(Span<'a>),
@@ -18,15 +18,15 @@ pub enum Token<'a> {
     Hiragana(Span<'a>),
     Katakana(Span<'a>),
     Alphabet(Span<'a>),
-    ZenkakuAlphabet(Span<'a>),
+    WideAlphabet(Span<'a>),
     Digit {
         body: Span<'a>,
         digit: usize,
     },
-    ZenkakuNumber(Span<'a>),
-    LinkAnnotation(Span<'a>),
+    WideDigit(Span<'a>),
+    LinkAnnotation(Vec<Token<'a>>),
     Annotation {
-        marker: Span<'a>,
+        body: Vec<Token<'a>>,
         desription: Vec<Token<'a>>,
     },
     Other(Span<'a>),
