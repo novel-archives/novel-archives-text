@@ -56,6 +56,10 @@ pub fn any_space1(input: token::Span) -> nom::IResult<token::Span, token::Span> 
     take_while1(is_any_space)(input)
 }
 
+pub fn able_to_ruby_body1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+    take_while1(complete::is_able_to_ruby)(input)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -146,5 +150,15 @@ mod tests {
     #[test_case("01224"=> Ok((token::test_helper::new_test_result_span(0, 1, "01224"),token::test_helper::new_test_result_span(0, 1, ""))))]
     fn katakana0_works(input: &str) -> nom::IResult<token::Span, token::Span> {
         katakana0(token::Span::new(input))
+    }
+
+    #[test_case("カタカナ"=> Ok((token::test_helper::new_test_result_span(12, 1, ""),token::test_helper::new_test_result_span(0, 1, "カタカナ"))))]
+    #[test_case("カタカナ\nと漢字"=> Ok((token::test_helper::new_test_result_span(12, 1, "\nと漢字"),token::test_helper::new_test_result_span(0, 1, "カタカナ"))))]
+    #[test_case("\n中カタカナ中"=> Err(nom::Err::Error(nom::error::Error::new(
+            token::Span::new("\n中カタカナ中"),
+            nom::error::ErrorKind::TakeWhile1,
+        ))))]
+    fn able_to_ruby_body1_works(input: &str) -> nom::IResult<token::Span, token::Span> {
+        able_to_ruby_body1(token::Span::new(input))
     }
 }

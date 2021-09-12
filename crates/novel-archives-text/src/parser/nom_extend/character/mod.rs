@@ -95,12 +95,16 @@ pub fn is_start_link_annotation(c: char) -> bool {
     c == '*' || c == '＊'
 }
 
-pub fn is_able_to_ruby(b: u8) -> bool {
-    !is_any_newline(b)
+pub fn is_able_to_ruby(c: char) -> bool {
+    !is_any_newline(c)
 }
 
-pub fn is_any_newline(b: u8) -> bool {
-    b == b'\r' || b == b'\n'
+pub fn is_able_to_ruby_body(c: char) -> bool {
+    !is_any_newline(c)
+}
+
+pub fn is_any_newline(c: char) -> bool {
+    c == '\r' || c == '\n'
 }
 
 #[cfg(test)]
@@ -419,18 +423,18 @@ mod tests {
     }
 
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case(b'\n'=>true)]
-    #[test_case(b'\r'=>true)]
-    #[test_case(b'\t'=>false)]
-    fn is_any_newline_works(b: u8) -> bool {
-        is_any_newline(b)
+    #[test_case('\n'=>true)]
+    #[test_case('\r'=>true)]
+    #[test_case('\t'=>false)]
+    fn is_any_newline_works(c: char) -> bool {
+        is_any_newline(c)
     }
 
     #[allow(clippy::bool_assert_comparison)]
-    #[test_case(b'\n'=>false)]
-    #[test_case(b'\r'=>false)]
-    #[test_case(b'\t'=>true)]
-    fn is_able_to_ruby_works(b: u8) -> bool {
-        is_able_to_ruby(b)
+    #[test_case('\n'=>false)]
+    #[test_case('\r'=>false)]
+    #[test_case('\t'=>true)]
+    fn is_able_to_ruby_works(c: char) -> bool {
+        is_able_to_ruby(c)
     }
 }
