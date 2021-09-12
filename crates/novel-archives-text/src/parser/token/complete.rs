@@ -30,6 +30,11 @@ pub fn half_and_wide_disit(input: Span) -> IResult {
     })
 }
 
+pub fn wide_alphabet(input: Span) -> IResult {
+    Ok(complete::wide_alphabetic1(input)
+        .map(|(input, parsed)| (input, Token::WideAlphabet(parsed)))?)
+}
+
 pub fn space(input: Span) -> IResult {
     Ok(complete::any_space1(input).map(|(input, parsed)| (input, Token::Space(parsed)))?)
 }
@@ -104,5 +109,12 @@ mod tests {
     #[test_case("中カタカナ中"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
     fn space_works(input: &str) -> IResult {
         space(token::Span::new(input))
+    }
+
+    #[test_case("ｓｃｄ"=> Ok((token::test_helper::new_test_result_span(9, 1, ""),Token::WideAlphabet(token::test_helper::new_test_result_span(0, 1, "ｓｃｄ")))))]
+    #[test_case("ｓｃｄと漢字"=> Ok((token::test_helper::new_test_result_span(9, 1, "と漢字"),Token::WideAlphabet(token::test_helper::new_test_result_span(0, 1, "ｓｃｄ")))))]
+    #[test_case("中カタカナ中"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
+    fn wide_alphabet_works(input: &str) -> IResult {
+        wide_alphabet(token::Span::new(input))
     }
 }

@@ -60,6 +60,10 @@ pub fn able_to_ruby_body1(input: token::Span) -> nom::IResult<token::Span, token
     take_while1(complete::is_able_to_ruby)(input)
 }
 
+pub fn wide_alphabetic1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+    take_while1(complete::is_wide_alphabetic)(input)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -160,5 +164,15 @@ mod tests {
         ))))]
     fn able_to_ruby_body1_works(input: &str) -> nom::IResult<token::Span, token::Span> {
         able_to_ruby_body1(token::Span::new(input))
+    }
+
+    #[test_case("ｓｃｄ"=> Ok((token::test_helper::new_test_result_span(9, 1, ""),token::test_helper::new_test_result_span(0, 1, "ｓｃｄ"))))]
+    #[test_case("ｓｃｄと漢字"=> Ok((token::test_helper::new_test_result_span(9, 1, "と漢字"),token::test_helper::new_test_result_span(0, 1, "ｓｃｄ"))))]
+    #[test_case("\n中カタカナ中"=> Err(nom::Err::Error(nom::error::Error::new(
+            token::Span::new("\n中カタカナ中"),
+            nom::error::ErrorKind::TakeWhile1,
+        ))))]
+    fn wide_alphabetic1_works(input: &str) -> nom::IResult<token::Span, token::Span> {
+        wide_alphabetic1(token::Span::new(input))
     }
 }
