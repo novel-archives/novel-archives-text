@@ -64,6 +64,10 @@ pub fn wide_alphabetic1(input: token::Span) -> nom::IResult<token::Span, token::
     take_while1(complete::is_wide_alphabetic)(input)
 }
 
+pub fn half_kana1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+    take_while1(complete::is_half_kana)(input)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -174,5 +178,15 @@ mod tests {
         ))))]
     fn wide_alphabetic1_works(input: &str) -> nom::IResult<token::Span, token::Span> {
         wide_alphabetic1(token::Span::new(input))
+    }
+
+    #[test_case("ｱｲｳｴｵ"=> Ok((token::test_helper::new_test_result_span(15, 1, ""),token::test_helper::new_test_result_span(0, 1, "ｱｲｳｴｵ"))))]
+    #[test_case("ｱｲｳｴｵアイウエオ"=> Ok((token::test_helper::new_test_result_span(15, 1, "アイウエオ"),token::test_helper::new_test_result_span(0, 1, "ｱｲｳｴｵ"))))]
+    #[test_case("中カタカナ中"=> Err(nom::Err::Error(nom::error::Error::new(
+            token::Span::new("中カタカナ中"),
+            nom::error::ErrorKind::TakeWhile1,
+        ))))]
+    fn half_kana1_works(input: &str) -> nom::IResult<token::Span, token::Span> {
+        half_kana1(token::Span::new(input))
     }
 }
