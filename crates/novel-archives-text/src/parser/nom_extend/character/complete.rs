@@ -56,8 +56,12 @@ pub fn any_space1(input: token::Span) -> nom::IResult<token::Span, token::Span> 
     take_while1(is_any_space)(input)
 }
 
-pub fn able_to_ruby_body1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn able_to_ruby(input: token::Span) -> nom::IResult<token::Span, token::Span> {
     take_while1(complete::is_able_to_ruby)(input)
+}
+
+pub fn able_to_ruby_body1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+    take_while1(complete::is_able_to_ruby_body)(input)
 }
 
 pub fn wide_alphabetic1(input: token::Span) -> nom::IResult<token::Span, token::Span> {

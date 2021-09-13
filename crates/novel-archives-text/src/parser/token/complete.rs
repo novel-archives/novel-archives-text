@@ -1,13 +1,54 @@
 use super::*;
-use nom::bytes::complete::take_while1;
+use nom::bytes::complete::{take_while1, take_while_m_n};
+use nom::sequence::delimited;
 use nom_extend::character;
 use nom_extend::character::complete;
 
 pub fn newline(input: Span) -> IResult {
     Ok(complete::any_newline(input).map(|(input, parsed)| (input, Token::NewLine(parsed)))?)
 }
+
+const MAX_RUBY_COUNT_PER_BODY_CHAR: usize = 10;
+const MAX_RUBY_COUNT_BODY: usize = 10;
+
+pub fn kanji_ruby(input: Span) -> IResult {
+    let (input, body) = complete::kanji1(input)?;
+    let mut ruby_parser = delimited(
+        take_while_m_n(1, 1, character::is_start_ruby),
+        complete::able_to_ruby,
+        take_while_m_n(1, 1, character::is_end_ruby),
+    );
+    let result = ruby_parser(input);
+    match result {
+        Ok((forword_input, ruby)) => {
+            let body_count = without_variation_selector_count(body.fragment());
+            if body_count <= MAX_RUBY_COUNT_BODY {
+                let ruby_count = without_variation_selector_count(ruby.fragment());
+                if ruby_count <= MAX_RUBY_COUNT_PER_BODY_CHAR * body_count {
+                    return Ok((
+                        forword_input,
+                        Token::KanjiRuby {
+                            body,
+                            ruby: iterator::RubyIterator::new(ruby),
+                        },
+                    ));
+                }
+            }
+            Ok((input, Token::Kanji(body)))
+        }
+        Err(_) => Ok((input, Token::Kanji(body))),
+    }
+}
+
 pub fn kanji(input: Span) -> IResult {
     Ok(complete::kanji1(input).map(|(input, parsed)| (input, Token::Kanji(parsed)))?)
+}
+
+fn without_variation_selector_count(input: &str) -> usize {
+    input
+        .chars()
+        .filter(|&c| !character::is_kanji_variation_selector(c))
+        .count()
 }
 
 pub fn hiragana(input: Span) -> IResult {
@@ -128,5 +169,20 @@ mod tests {
     #[test_case("中カタカナ中"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
     fn half_katakana_works(input: &str) -> IResult {
         half_katakana(token::Span::new(input))
+    }
+
+    #[test_case("漢字"=> Ok((token::test_helper::new_test_result_span(6, 1, ""),Token::Kanji(token::test_helper::new_test_result_span(0, 1, "漢字")))))]
+    #[test_case("漢字|(かんじ)"=> Ok((token::test_helper::new_test_result_span(6, 1, "|(かんじ)"),Token::Kanji(token::test_helper::new_test_result_span(0, 1, "漢字")))))]
+    #[test_case("漢字(かんじ)"=> Ok((token::test_helper::new_test_result_span(17, 1, ""),Token::KanjiRuby{body:token::test_helper::new_test_result_span(0, 1, "漢字"),
+    ruby:iterator::RubyIterator::new(test_helper::new_test_result_span(7, 1, "かんじ"))}));"half")]
+    #[test_case("漢字漢字漢字漢字漢字字(かんじ)"=> Ok((token::test_helper::new_test_result_span(33, 1, "(かんじ)"),Token::Kanji(token::test_helper::new_test_result_span(0, 1, "漢字漢字漢字漢字漢字字")))))]
+    #[test_case("邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄(なべなべなべなべなべ)"=> Ok((token::test_helper::new_test_result_span(102, 1, ""),Token::KanjiRuby{body:token::test_helper::new_test_result_span(0, 1, "邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄"),
+    ruby:iterator::RubyIterator::new(test_helper::new_test_result_span(71, 1, "なべなべなべなべなべ"))}));"nabe")]
+    #[test_case("漢字（かんじ）"=> Ok((token::test_helper::new_test_result_span(21, 1, ""),Token::KanjiRuby{body:token::test_helper::new_test_result_span(0, 1, "漢字"),
+    ruby:iterator::RubyIterator::new(test_helper::new_test_result_span(9, 1, "かんじ"))}));"wide")]
+    #[test_case("漢字アイウエオ"=> Ok((token::test_helper::new_test_result_span(6, 1, "アイウエオ"),Token::Kanji(token::test_helper::new_test_result_span(0, 1, "漢字")))))]
+    #[test_case("カタカナ"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "カタカナ"),nom::error::ErrorKind::TakeWhile1)))]
+    fn kanji_ruby_works(input: &str) -> IResult {
+        kanji_ruby(token::Span::new(input))
     }
 }

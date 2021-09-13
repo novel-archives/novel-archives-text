@@ -18,18 +18,11 @@ pub fn is_end_annotation(c: char) -> bool {
 }
 
 pub fn is_start_ruby(c: char) -> bool {
-    c == '《' || c == '⟪'
+    c == '《' || c == '⟪' || c == '(' || c == '（'
 }
 
 pub fn is_end_ruby(c: char) -> bool {
-    c == '》' || c == '⟫'
-}
-
-pub fn is_start_kanji_ruby(c: char) -> bool {
-    c == '(' || c == '（'
-}
-pub fn is_end_kanji_ruby(c: char) -> bool {
-    c == ')' || c == '）'
+    c == '》' || c == '⟫' || c == ')' || c == '）'
 }
 
 pub fn is_kanji_related(c: char) -> bool {
@@ -96,7 +89,7 @@ pub fn is_start_link_annotation(c: char) -> bool {
 }
 
 pub fn is_able_to_ruby(c: char) -> bool {
-    !is_any_newline(c)
+    !(is_any_newline(c) || is_end_ruby(c))
 }
 
 pub fn is_able_to_ruby_body(c: char) -> bool {
@@ -179,6 +172,8 @@ mod tests {
     #[allow(clippy::bool_assert_comparison)]
     #[test_case('《'=>true;"normal")]
     #[test_case('⟪'=>true;"mathematical")]
+    #[test_case('('=>true;"half")]
+    #[test_case('（'=>true;"wide")]
     #[test_case('a'=>false)]
     #[test_case('b'=>false)]
     #[test_case('0'=>false)]
@@ -193,32 +188,6 @@ mod tests {
     #[allow(clippy::bool_assert_comparison)]
     #[test_case('》'=>true;"normal")]
     #[test_case('⟫'=>true;"mathematical")]
-    #[test_case('a'=>false)]
-    #[test_case('b'=>false)]
-    #[test_case('0'=>false)]
-    #[test_case('０'=>false)]
-    #[test_case('9'=>false)]
-    #[test_case('９'=>false)]
-    #[test_case('あ'=>false)]
-    #[test_case('塡'=>false)]
-    fn is_end_ruby_works(c: char) -> bool {
-        is_end_ruby(c)
-    }
-    #[allow(clippy::bool_assert_comparison)]
-    #[test_case('('=>true;"half")]
-    #[test_case('（'=>true;"wide")]
-    #[test_case('a'=>false)]
-    #[test_case('b'=>false)]
-    #[test_case('0'=>false)]
-    #[test_case('０'=>false)]
-    #[test_case('9'=>false)]
-    #[test_case('９'=>false)]
-    #[test_case('あ'=>false)]
-    #[test_case('塡'=>false)]
-    fn is_start_kanji_ruby_works(c: char) -> bool {
-        is_start_kanji_ruby(c)
-    }
-    #[allow(clippy::bool_assert_comparison)]
     #[test_case(')'=>true;"half")]
     #[test_case('）'=>true;"wide")]
     #[test_case('a'=>false)]
@@ -229,8 +198,8 @@ mod tests {
     #[test_case('９'=>false)]
     #[test_case('あ'=>false)]
     #[test_case('塡'=>false)]
-    fn is_end_kanji_ruby_works(c: char) -> bool {
-        is_end_kanji_ruby(c)
+    fn is_end_ruby_works(c: char) -> bool {
+        is_end_ruby(c)
     }
     #[allow(clippy::bool_assert_comparison)]
     #[test_case('('=>false;"half")]
