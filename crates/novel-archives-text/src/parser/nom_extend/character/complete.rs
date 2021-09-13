@@ -64,8 +64,8 @@ pub fn wide_alphabetic1(input: token::Span) -> nom::IResult<token::Span, token::
     take_while1(complete::is_wide_alphabetic)(input)
 }
 
-pub fn half_kana1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
-    take_while1(complete::is_half_kana)(input)
+pub fn half_katakana1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+    take_while1(complete::is_half_katakana)(input)
 }
 
 #[cfg(test)]
@@ -186,7 +186,7 @@ mod tests {
             token::Span::new("中カタカナ中"),
             nom::error::ErrorKind::TakeWhile1,
         ))))]
-    fn half_kana1_works(input: &str) -> nom::IResult<token::Span, token::Span> {
-        half_kana1(token::Span::new(input))
+    fn half_katakana1_works(input: &str) -> nom::IResult<token::Span, token::Span> {
+        half_katakana1(token::Span::new(input))
     }
 }

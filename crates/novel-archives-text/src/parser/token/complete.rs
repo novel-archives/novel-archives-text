@@ -55,6 +55,11 @@ pub fn half_and_wide_usize(input: Span) -> IResult<(Span, usize)> {
     ))
 }
 
+pub fn half_katakana(input: Span) -> IResult {
+    Ok(complete::half_katakana1(input)
+        .map(|(input, parsed)| (input, Token::HalfKatakana(parsed)))?)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -116,5 +121,12 @@ mod tests {
     #[test_case("中カタカナ中"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
     fn wide_alphabet_works(input: &str) -> IResult {
         wide_alphabet(token::Span::new(input))
+    }
+
+    #[test_case("ｱｲｳｴｵ"=> Ok((token::test_helper::new_test_result_span(15, 1, ""),Token::HalfKatakana(token::test_helper::new_test_result_span(0, 1, "ｱｲｳｴｵ")))))]
+    #[test_case("ｱｲｳｴｵアイウエオ"=> Ok((token::test_helper::new_test_result_span(15, 1, "アイウエオ"),Token::HalfKatakana(token::test_helper::new_test_result_span(0, 1, "ｱｲｳｴｵ")))))]
+    #[test_case("中カタカナ中"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
+    fn half_katakana_works(input: &str) -> IResult {
+        half_katakana(token::Span::new(input))
     }
 }

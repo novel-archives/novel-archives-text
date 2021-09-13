@@ -108,7 +108,7 @@ pub fn is_any_newline(c: char) -> bool {
 }
 
 #[allow(clippy::manual_range_contains)]
-pub fn is_half_kana(c: char) -> bool {
+pub fn is_half_katakana(c: char) -> bool {
     c >= 'ｦ' && c <= 'ﾝ'
 }
 
@@ -452,7 +452,7 @@ mod tests {
     #[test_case('ｦ'=>true)]
     #[test_case('ン'=>false)]
     #[test_case('ﾝ'=>true)]
-    fn is_half_kana_works(c: char) -> bool {
-        is_half_kana(c)
+    fn is_half_katakana_works(c: char) -> bool {
+        is_half_katakana(c)
     }
 }

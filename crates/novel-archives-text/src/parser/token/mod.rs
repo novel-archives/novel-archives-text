@@ -17,6 +17,7 @@ pub enum Token<'a> {
     Kanji(Span<'a>),
     Hiragana(Span<'a>),
     Katakana(Span<'a>),
+    HalfKatakana(Span<'a>),
     Alphabet(Span<'a>),
     WideAlphabet(Span<'a>),
     Digit {
