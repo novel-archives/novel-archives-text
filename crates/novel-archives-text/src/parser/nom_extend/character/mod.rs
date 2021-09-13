@@ -107,6 +107,11 @@ pub fn is_any_newline(c: char) -> bool {
     c == '\r' || c == '\n'
 }
 
+#[allow(clippy::manual_range_contains)]
+pub fn is_half_kana(c: char) -> bool {
+    c >= 'ｦ' && c <= 'ﾝ'
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -436,5 +441,18 @@ mod tests {
     #[test_case('\t'=>true)]
     fn is_able_to_ruby_works(c: char) -> bool {
         is_able_to_ruby(c)
+    }
+
+    #[allow(clippy::bool_assert_comparison)]
+    #[test_case('ア'=>false)]
+    #[test_case('ｱ'=>true)]
+    #[test_case('イ'=>false)]
+    #[test_case('ｲ'=>true)]
+    #[test_case('ヲ'=>false)]
+    #[test_case('ｦ'=>true)]
+    #[test_case('ン'=>false)]
+    #[test_case('ﾝ'=>true)]
+    fn is_half_kana_works(c: char) -> bool {
+        is_half_kana(c)
     }
 }
