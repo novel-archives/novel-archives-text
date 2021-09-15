@@ -93,7 +93,7 @@ pub fn is_able_to_ruby(c: char) -> bool {
 }
 
 pub fn is_able_to_ruby_body(c: char) -> bool {
-    !is_any_newline(c)
+    !(is_any_newline(c) || is_start_ruby(c))
 }
 
 pub fn is_any_newline(c: char) -> bool {
@@ -442,5 +442,15 @@ mod tests {
     #[test_case('。'=>true;"punctuation_circle")]
     fn is_punctuation_works(c: char) -> bool {
         is_punctuation(c)
+    }
+
+    #[allow(clippy::bool_assert_comparison)]
+    #[test_case('\n'=>false)]
+    #[test_case('\r'=>false)]
+    #[test_case('('=>false;"half_(")]
+    #[test_case('（'=>false;"wide_(")]
+    #[test_case('\t'=>true)]
+    fn is_able_to_ruby_body_works(c: char) -> bool {
+        is_able_to_ruby_body(c)
     }
 }
