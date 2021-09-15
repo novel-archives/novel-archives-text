@@ -3,8 +3,10 @@ use nom::branch::alt;
 use nom::bytes::complete::take_while;
 use nom::bytes::complete::take_while1;
 pub use nom::character::complete::*;
-pub fn any_newline(input: token::Span) -> nom::IResult<token::Span, token::Span> {
-    let result: nom::IResult<token::Span, token::Span> = alt((
+
+pub type NomIResult<'a> = nom::IResult<token::Span<'a>, token::Span<'a>>;
+pub fn any_newline(input: token::Span) -> NomIResult {
+    let result: NomIResult = alt((
         nom::bytes::complete::tag("\n"),
         nom::bytes::complete::tag("\r\n"),
     ))(input);
@@ -24,52 +26,56 @@ pub fn any_newline(input: token::Span) -> nom::IResult<token::Span, token::Span>
     }
 }
 
-pub fn kanji0(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn kanji0(input: token::Span) -> NomIResult {
     take_while(is_kanji_related)(input)
 }
 
-pub fn kanji1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn kanji1(input: token::Span) -> NomIResult {
     take_while1(is_kanji_related)(input)
 }
 
-pub fn hiragana0(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn hiragana0(input: token::Span) -> NomIResult {
     take_while(is_hiragana)(input)
 }
 
-pub fn hiragana1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn hiragana1(input: token::Span) -> NomIResult {
     take_while1(is_hiragana)(input)
 }
 
-pub fn katakana0(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn katakana0(input: token::Span) -> NomIResult {
     take_while(is_katakana)(input)
 }
 
-pub fn katakana1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn katakana1(input: token::Span) -> NomIResult {
     take_while1(is_katakana)(input)
 }
 
-pub fn any_space0(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn any_space0(input: token::Span) -> NomIResult {
     take_while(is_any_space)(input)
 }
 
-pub fn any_space1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn any_space1(input: token::Span) -> NomIResult {
     take_while1(is_any_space)(input)
 }
 
-pub fn able_to_ruby(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn able_to_ruby(input: token::Span) -> NomIResult {
     take_while1(complete::is_able_to_ruby)(input)
 }
 
-pub fn able_to_ruby_body1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn able_to_ruby_body1(input: token::Span) -> NomIResult {
     take_while1(complete::is_able_to_ruby_body)(input)
 }
 
-pub fn wide_alphabetic1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn wide_alphabetic1(input: token::Span) -> NomIResult {
     take_while1(complete::is_wide_alphabetic)(input)
 }
 
-pub fn half_katakana1(input: token::Span) -> nom::IResult<token::Span, token::Span> {
+pub fn half_katakana1(input: token::Span) -> NomIResult {
     take_while1(complete::is_half_katakana)(input)
+}
+
+pub fn punctuation1(input: token::Span) -> NomIResult {
+    take_while1(complete::is_punctuation)(input)
 }
 
 #[cfg(test)]
@@ -192,5 +198,15 @@ mod tests {
         ))))]
     fn half_katakana1_works(input: &str) -> nom::IResult<token::Span, token::Span> {
         half_katakana1(token::Span::new(input))
+    }
+
+    #[test_case("。ｱｲｳｴｵ"=> Ok((token::test_helper::new_test_result_span(3, 1, "ｱｲｳｴｵ"),token::test_helper::new_test_result_span(0, 1, "。")));"punctuation_circle")]
+    #[test_case("、ｱｲｳｴｵ"=> Ok((token::test_helper::new_test_result_span(3, 1, "ｱｲｳｴｵ"),token::test_helper::new_test_result_span(0, 1, "、")));"punctuation_dot")]
+    #[test_case("中カタカナ中"=> Err(nom::Err::Error(nom::error::Error::new(
+            token::Span::new("中カタカナ中"),
+            nom::error::ErrorKind::TakeWhile1,
+        ))))]
+    fn punctuation1_works(input: &str) -> nom::IResult<token::Span, token::Span> {
+        punctuation1(token::Span::new(input))
     }
 }

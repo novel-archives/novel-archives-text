@@ -105,6 +105,10 @@ pub fn is_half_katakana(c: char) -> bool {
     c >= 'ｦ' && c <= 'ﾝ'
 }
 
+pub fn is_punctuation(c: char) -> bool {
+    c == '、' || c == '。'
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -423,5 +427,20 @@ mod tests {
     #[test_case('ﾝ'=>true)]
     fn is_half_katakana_works(c: char) -> bool {
         is_half_katakana(c)
+    }
+
+    #[allow(clippy::bool_assert_comparison)]
+    #[test_case('ア'=>false)]
+    #[test_case('ｱ'=>false)]
+    #[test_case('イ'=>false)]
+    #[test_case('ｲ'=>false)]
+    #[test_case('ヲ'=>false)]
+    #[test_case('ｦ'=>false)]
+    #[test_case('ン'=>false)]
+    #[test_case('ﾝ'=>false)]
+    #[test_case('、'=>true;"punctuation_dot")]
+    #[test_case('。'=>true;"punctuation_circle")]
+    fn is_punctuation_works(c: char) -> bool {
+        is_punctuation(c)
     }
 }

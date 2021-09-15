@@ -32,6 +32,8 @@ pub enum Token<'a> {
         body: Vec<Token<'a>>,
         desription: Vec<Token<'a>>,
     },
+    Ignore(Span<'a>),
+    Punctuation(Span<'a>),
     Other(Span<'a>),
     NewLine(Span<'a>),
 }

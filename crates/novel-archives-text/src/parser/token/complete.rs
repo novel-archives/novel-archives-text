@@ -101,6 +101,10 @@ pub fn half_katakana(input: Span) -> IResult {
         .map(|(input, parsed)| (input, Token::HalfKatakana(parsed)))?)
 }
 
+pub fn punctuation(input: Span) -> IResult {
+    Ok(complete::punctuation1(input).map(|(input, parsed)| (input, Token::Punctuation(parsed)))?)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -184,5 +188,12 @@ mod tests {
     #[test_case("カタカナ"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "カタカナ"),nom::error::ErrorKind::TakeWhile1)))]
     fn kanji_ruby_works(input: &str) -> IResult {
         kanji_ruby(token::Span::new(input))
+    }
+
+    #[test_case("。ｱｲｳｴｵ"=> Ok((token::test_helper::new_test_result_span(3, 1, "ｱｲｳｴｵ"),Token::Punctuation(token::test_helper::new_test_result_span(0, 1, "。"))));"punctuation_circle")]
+    #[test_case("、ｱｲｳｴｵ"=> Ok((token::test_helper::new_test_result_span(3, 1, "ｱｲｳｴｵ"),Token::Punctuation(token::test_helper::new_test_result_span(0, 1, "、"))));"punctuation_dot")]
+    #[test_case("中カタカナ中"=> Err(Error::Nom(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
+    fn punctuation_works(input: &str) -> IResult {
+        punctuation(token::Span::new(input))
     }
 }
