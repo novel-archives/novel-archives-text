@@ -14,10 +14,34 @@ impl<'a> Iterator for RubyIterator<'a> {
 
 #[derive(new, Debug, PartialEq)]
 pub struct RubyBodyIterator<'a> {
-    ruby: Span<'a>,
+    body: Span<'a>,
 }
 
 impl<'a> Iterator for RubyBodyIterator<'a> {
+    type Item = Span<'a>;
+    fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
+        todo!()
+    }
+}
+
+#[derive(new, Debug, PartialEq)]
+pub struct AnnotationBodyIterator<'a> {
+    body: Span<'a>,
+}
+
+impl<'a> Iterator for AnnotationBodyIterator<'a> {
+    type Item = Span<'a>;
+    fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
+        todo!()
+    }
+}
+
+#[derive(new, Debug, PartialEq)]
+pub struct AnnotationDescriptionIterator<'a> {
+    description: Span<'a>,
+}
+
+impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
     type Item = Span<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
         todo!()

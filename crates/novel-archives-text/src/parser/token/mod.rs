@@ -29,8 +29,8 @@ pub enum Token<'a> {
         lined_at: usize,
     },
     Annotation {
-        body: Vec<Token<'a>>,
-        desription: Vec<Token<'a>>,
+        body: iterator::AnnotationBodyIterator<'a>,
+        description: iterator::AnnotationDescriptionIterator<'a>,
     },
     Ignore(Span<'a>),
     Punctuation(Span<'a>),

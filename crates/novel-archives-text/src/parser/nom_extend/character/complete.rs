@@ -1,7 +1,6 @@
 use super::*;
 use nom::branch::alt;
-use nom::bytes::complete::take_while;
-use nom::bytes::complete::take_while1;
+use nom::bytes::complete::{take_while, take_while1, take_while_m_n};
 pub use nom::character::complete::*;
 
 pub type NomIResult<'a> = nom::IResult<token::Span<'a>, token::Span<'a>>;
@@ -66,6 +65,10 @@ pub fn able_to_ruby_body1(input: token::Span) -> NomIResult {
     take_while1(complete::is_able_to_ruby_body)(input)
 }
 
+pub fn able_to_annotation(input: token::Span) -> NomIResult {
+    take_while1(complete::is_able_to_annotation)(input)
+}
+
 pub fn wide_alphabetic1(input: token::Span) -> NomIResult {
     take_while1(complete::is_wide_alphabetic)(input)
 }
@@ -76,6 +79,10 @@ pub fn half_katakana1(input: token::Span) -> NomIResult {
 
 pub fn punctuation1(input: token::Span) -> NomIResult {
     take_while1(complete::is_punctuation)(input)
+}
+
+pub fn start_directive(input: token::Span) -> NomIResult {
+    take_while_m_n(1, 1, character::is_start_directive)(input)
 }
 
 #[cfg(test)]

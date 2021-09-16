@@ -109,6 +109,14 @@ pub fn is_punctuation(c: char) -> bool {
     c == '、' || c == '。'
 }
 
+pub fn is_able_to_annotation_body(c: char) -> bool {
+    !(is_any_newline(c) || is_start_annotation(c))
+}
+
+pub fn is_able_to_annotation(c: char) -> bool {
+    !(is_any_newline(c) || is_end_annotation(c))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
