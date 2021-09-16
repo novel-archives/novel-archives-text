@@ -1,6 +1,8 @@
 use super::*;
 pub mod complete;
+mod context;
 pub mod iterator;
+mod span;
 
 #[derive(Debug, PartialEq)]
 pub enum Token<'a> {
@@ -38,7 +40,8 @@ pub enum Token<'a> {
     NewLine(Span<'a>),
 }
 
-pub type Span<'a> = nom_locate::LocatedSpan<&'a str>;
+pub use context::*;
+pub use span::*;
 
 #[cfg(test)]
 pub mod test_helper {
