@@ -5,8 +5,11 @@ pub mod iterator;
 mod span;
 
 #[derive(Debug, PartialEq)]
-pub enum Token<'a> {
-    Term(Span<'a>),
+pub enum Token<'a, 'b> {
+    Term {
+        body: Span<'a>,
+        term: &'b term::Term,
+    },
     Ruby {
         body: iterator::RubyBodyIterator<'a>,
         ruby: iterator::RubyIterator<'a>,
@@ -27,7 +30,7 @@ pub enum Token<'a> {
         digit: usize,
     },
     LinkAnnotation {
-        body: Vec<Token<'a>>,
+        body: Vec<Token<'a, 'b>>,
         lined_at: usize,
     },
     Annotation {

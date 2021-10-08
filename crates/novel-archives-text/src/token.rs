@@ -1,3 +1,4 @@
+#[derive(Debug, PartialEq, Clone, new)]
 pub enum TokenKind {
     Term(Token),
     Ruby {
@@ -22,13 +23,13 @@ pub enum TokenKind {
     NewLine,
 }
 
-#[derive(new, Getters)]
+#[derive(Debug, PartialEq, Clone, new, Getters)]
 pub struct Token {
     body: String,
     originel_position: Position,
 }
 
-#[derive(new, Getters)]
+#[derive(Debug, PartialEq, Clone, new, Getters)]
 pub struct Position {
     line: usize,
     byte_offset: usize,

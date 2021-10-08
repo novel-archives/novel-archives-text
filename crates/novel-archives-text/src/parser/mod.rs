@@ -5,3 +5,5 @@ pub mod token;
 
 pub use error::*;
 pub use result::*;
+
+use super::term;
