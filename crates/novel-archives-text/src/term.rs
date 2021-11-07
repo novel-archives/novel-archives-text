@@ -1,9 +1,9 @@
 use super::*;
 
-#[derive(Debug, PartialEq, Clone, new)]
+#[derive(Debug, PartialEq, Clone, new, Getters)]
 pub struct Term {
     id: Id<Term>,
-    body: Vec<TokenKind>,
-    ruby: Vec<TokenKind>,
-    description: Vec<TokenKind>,
+    body: TokenText,
+    ruby: TokenText,
+    description: TokenText,
 }
