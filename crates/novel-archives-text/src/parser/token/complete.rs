@@ -95,13 +95,6 @@ pub fn kanji(input: Span) -> IResult {
     complete::kanji1(input).map(|(input, parsed)| (input, Token::Kanji(parsed)))
 }
 
-fn without_variation_selector_count(input: &str) -> usize {
-    input
-        .chars()
-        .filter(|&c| !character::is_kanji_variation_selector(c))
-        .count()
-}
-
 pub fn hiragana(input: Span) -> IResult {
     complete::hiragana1(input).map(|(input, parsed)| (input, Token::Hiragana(parsed)))
 }

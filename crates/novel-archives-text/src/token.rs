@@ -69,3 +69,6 @@ pub struct Position {
     line: usize,
     byte_offset: usize,
 }
+
+#[cfg(test)]
+mod test_helper {}

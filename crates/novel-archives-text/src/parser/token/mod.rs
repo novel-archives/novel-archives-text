@@ -1,14 +1,15 @@
 use super::*;
+use std::sync::Arc;
 pub mod complete;
 mod context;
 pub mod iterator;
 mod span;
 
 #[derive(Debug, PartialEq)]
-pub enum Token<'a, 'b> {
+pub enum Token<'a> {
     Term {
         body: Span<'a>,
-        term: &'b term::Term,
+        term: Arc<term::Term>,
     },
     Ruby {
         body: iterator::RubyBodyIterator<'a>,
@@ -30,7 +31,7 @@ pub enum Token<'a, 'b> {
         digit: usize,
     },
     LinkAnnotation {
-        body: Vec<Token<'a, 'b>>,
+        body: Vec<Token<'a>>,
         lined_at: usize,
     },
     Annotation {
@@ -45,6 +46,15 @@ pub enum Token<'a, 'b> {
 
 pub use context::*;
 pub use span::*;
+
+use nom_extend::character;
+
+fn without_variation_selector_count(input: &str) -> usize {
+    input
+        .chars()
+        .filter(|&c| !character::is_kanji_variation_selector(c))
+        .count()
+}
 
 #[cfg(test)]
 pub mod test_helper {
