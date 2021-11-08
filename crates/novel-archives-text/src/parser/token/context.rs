@@ -5,7 +5,7 @@ use nom::InputTake;
 
 #[derive(Debug, PartialEq, Clone, new)]
 pub struct Context {
-    term_map: TermMap,
+    term_map: Arc<TermMap>,
 }
 
 #[derive(Debug, PartialEq, Clone, new, Getters)]
@@ -136,7 +136,7 @@ mod tests {
         }))
     )]
     fn context_term_works(term_map: TermMap, input: &str) -> IResult {
-        let ctx = Context::new(term_map);
+        let ctx = Context::new(Arc::new(term_map));
         ctx.term(token::Span::new(input))
     }
 }
