@@ -1,4 +1,5 @@
 use super::*;
+use nom::branch::alt;
 
 #[derive(new, Debug, PartialEq)]
 pub struct RubyIterator<'a> {
@@ -7,9 +8,23 @@ pub struct RubyIterator<'a> {
 }
 
 impl<'a> Iterator for RubyIterator<'a> {
-    type Item = Span<'a>;
+    type Item = Token<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
-        todo!()
+        let (ruby, parsed) = alt((
+            complete::kanji,
+            complete::space,
+            complete::hiragana,
+            complete::katakana,
+            complete::half_and_wide_disit,
+            complete::alphabet,
+            complete::wide_alphabet,
+            complete::half_katakana,
+            complete::punctuation,
+            complete::other_in_ruby,
+        ))(self.ruby)
+        .ok()?;
+        self.ruby = ruby;
+        Some(parsed)
     }
 }
 
@@ -20,7 +35,7 @@ pub struct RubyBodyIterator<'a> {
 }
 
 impl<'a> Iterator for RubyBodyIterator<'a> {
-    type Item = Span<'a>;
+    type Item = Token<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
         todo!()
     }
@@ -33,7 +48,7 @@ pub struct AnnotationBodyIterator<'a> {
 }
 
 impl<'a> Iterator for AnnotationBodyIterator<'a> {
-    type Item = Span<'a>;
+    type Item = Token<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
         todo!()
     }
@@ -46,7 +61,7 @@ pub struct AnnotationDescriptionIterator<'a> {
 }
 
 impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
-    type Item = Span<'a>;
+    type Item = Token<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
         todo!()
     }

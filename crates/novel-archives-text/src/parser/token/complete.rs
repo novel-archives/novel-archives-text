@@ -31,6 +31,10 @@ pub fn half_and_wide_disit(input: Span) -> IResult {
     })
 }
 
+pub fn alphabet(input: Span) -> IResult {
+    complete::alpha1(input).map(|(input, parsed)| (input, Token::Alphabet(parsed)))
+}
+
 pub fn wide_alphabet(input: Span) -> IResult {
     complete::wide_alphabetic1(input).map(|(input, parsed)| (input, Token::WideAlphabet(parsed)))
 }
@@ -61,6 +65,11 @@ pub fn half_katakana(input: Span) -> IResult {
 
 pub fn punctuation(input: Span) -> IResult {
     complete::punctuation1(input).map(|(input, parsed)| (input, Token::Punctuation(parsed)))
+}
+
+pub fn other_in_ruby(input: Span) -> IResult {
+    take_while1(character::is_other_in_ruby)(input)
+        .map(|(input, parsed)| (input, Token::Other(parsed)))
 }
 
 #[cfg(test)]

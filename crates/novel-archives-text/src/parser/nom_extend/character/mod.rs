@@ -117,6 +117,18 @@ pub fn is_able_to_annotation(c: char) -> bool {
     !(is_any_newline(c) || is_end_annotation(c))
 }
 
+pub fn is_other_in_ruby(c: char) -> bool {
+    !(is_wide_half_alphabetic(c)
+        || is_wide_half_disit(c)
+        || is_hiragana(c)
+        || is_kanji(c)
+        || is_any_space(c)
+        || is_katakana(c)
+        || is_wide_half_alphabetic(c)
+        || is_half_katakana(c)
+        || is_punctuation(c))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
