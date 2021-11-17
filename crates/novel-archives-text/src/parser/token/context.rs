@@ -174,11 +174,11 @@ mod tests {
     fn new_sample_term(text: &str) -> term::Term {
         term::Term::new(
             Id::new("term_id1".into()),
-            TokenText::new(vec![TokenKind::new_kanji(Span::new(
+            TokenText::new(vec![Token::new_kanji(Span::new(
                 text.into(),
                 Position::new(0, 0),
             ))]),
-            TokenText::new(vec![TokenKind::new_hiragana(Span::new(
+            TokenText::new(vec![Token::new_hiragana(Span::new(
                 "む".into(),
                 Position::new(0, 0),
             ))]),

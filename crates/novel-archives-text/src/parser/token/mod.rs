@@ -52,27 +52,25 @@ fn without_variation_selector_count(input: &str) -> usize {
         .count()
 }
 
-impl<'a> From<ParsedToken<'a>> for crate::TokenKind {
+impl<'a> From<ParsedToken<'a>> for crate::Token {
     fn from(token: ParsedToken<'a>) -> Self {
         match token {
-            ParsedToken::Term { body, term } => {
-                TokenKind::new_term(body.into(), term.as_ref().clone())
-            }
+            ParsedToken::Term { body, term } => Token::new_term(body.into(), term.as_ref().clone()),
             ParsedToken::Ruby { .. } => todo!(),
             ParsedToken::KanjiRuby { .. } => todo!(),
-            ParsedToken::Space(body) => TokenKind::new_spase(body.into()),
-            ParsedToken::Kanji(body) => TokenKind::new_kanji(body.into()),
-            ParsedToken::Hiragana(body) => TokenKind::new_hiragana(body.into()),
-            ParsedToken::Katakana(body) => TokenKind::new_katakana(body.into()),
-            ParsedToken::HalfKatakana(body) => TokenKind::new_half_katakana(body.into()),
-            ParsedToken::Alphabet(body) => TokenKind::new_alphabet(body.into()),
-            ParsedToken::WideAlphabet(body) => TokenKind::new_wide_alphabet(body.into()),
-            ParsedToken::Digit { body, digit } => TokenKind::new_digit(body.into(), digit),
+            ParsedToken::Space(body) => Token::new_spase(body.into()),
+            ParsedToken::Kanji(body) => Token::new_kanji(body.into()),
+            ParsedToken::Hiragana(body) => Token::new_hiragana(body.into()),
+            ParsedToken::Katakana(body) => Token::new_katakana(body.into()),
+            ParsedToken::HalfKatakana(body) => Token::new_half_katakana(body.into()),
+            ParsedToken::Alphabet(body) => Token::new_alphabet(body.into()),
+            ParsedToken::WideAlphabet(body) => Token::new_wide_alphabet(body.into()),
+            ParsedToken::Digit { body, digit } => Token::new_digit(body.into(), digit),
             ParsedToken::Annotation { .. } => todo!(),
-            ParsedToken::Ignore(body) => TokenKind::new_ignore(body.into()),
-            ParsedToken::Punctuation(body) => TokenKind::new_punctuation(body.into()),
-            ParsedToken::Other(body) => TokenKind::new_other(body.into()),
-            ParsedToken::NewLine(body) => TokenKind::NewLine(body.into()),
+            ParsedToken::Ignore(body) => Token::new_ignore(body.into()),
+            ParsedToken::Punctuation(body) => Token::new_punctuation(body.into()),
+            ParsedToken::Other(body) => Token::new_other(body.into()),
+            ParsedToken::NewLine(body) => Token::NewLine(body.into()),
         }
     }
 }

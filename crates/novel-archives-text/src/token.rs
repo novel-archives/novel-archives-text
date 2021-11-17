@@ -1,7 +1,7 @@
 use crate::term::Term;
 use std::fmt::Write;
 #[derive(Debug, PartialEq, Clone, new)]
-pub struct TokenText(Vec<TokenKind>);
+pub struct TokenText(Vec<Token>);
 
 impl ToString for TokenText {
     fn to_string(&self) -> std::string::String {
@@ -14,7 +14,7 @@ impl ToString for TokenText {
 }
 
 #[derive(Debug, PartialEq, Clone, new)]
-pub enum TokenKind {
+pub enum Token {
     Term {
         body: Span,
         term: Term,
@@ -48,27 +48,27 @@ pub enum TokenKind {
     NewLine(Span),
 }
 
-impl ToString for TokenKind {
+impl ToString for Token {
     fn to_string(&self) -> std::string::String {
         match self {
-            TokenKind::Term { body, .. } => body.body().clone(),
-            TokenKind::Ruby { body, .. } => body.to_string(),
-            TokenKind::Spase(token) => token.body().clone(),
-            TokenKind::Kanji(token) => token.body().clone(),
-            TokenKind::Hiragana(token) => token.body().clone(),
-            TokenKind::Katakana(token) => token.body().clone(),
-            TokenKind::HalfKatakana(token) => token.body().clone(),
-            TokenKind::Alphabet(token) => token.body().clone(),
-            TokenKind::WideAlphabet(token) => token.body().clone(),
-            TokenKind::ZenkakuAlphabet(token) => token.body().clone(),
-            TokenKind::Digit { body, .. } => body.body().clone(),
-            TokenKind::ZenkakuNumber(token) => token.body().clone(),
-            TokenKind::LinkAnnotation(token) => token.body().clone(),
-            TokenKind::Annotation { marker, .. } => marker.body().clone(),
-            TokenKind::Ignore(token) => token.body().clone(),
-            TokenKind::Punctuation(token) => token.body().clone(),
-            TokenKind::Other(token) => token.body().clone(),
-            TokenKind::NewLine(token) => token.body().to_string(),
+            Token::Term { body, .. } => body.body().clone(),
+            Token::Ruby { body, .. } => body.to_string(),
+            Token::Spase(token) => token.body().clone(),
+            Token::Kanji(token) => token.body().clone(),
+            Token::Hiragana(token) => token.body().clone(),
+            Token::Katakana(token) => token.body().clone(),
+            Token::HalfKatakana(token) => token.body().clone(),
+            Token::Alphabet(token) => token.body().clone(),
+            Token::WideAlphabet(token) => token.body().clone(),
+            Token::ZenkakuAlphabet(token) => token.body().clone(),
+            Token::Digit { body, .. } => body.body().clone(),
+            Token::ZenkakuNumber(token) => token.body().clone(),
+            Token::LinkAnnotation(token) => token.body().clone(),
+            Token::Annotation { marker, .. } => marker.body().clone(),
+            Token::Ignore(token) => token.body().clone(),
+            Token::Punctuation(token) => token.body().clone(),
+            Token::Other(token) => token.body().clone(),
+            Token::NewLine(token) => token.body().to_string(),
         }
     }
 }
