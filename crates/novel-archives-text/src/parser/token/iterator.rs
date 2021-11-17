@@ -8,7 +8,7 @@ pub struct RubyIterator<'a> {
 }
 
 impl<'a> Iterator for RubyIterator<'a> {
-    type Item = Token<'a>;
+    type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
         let (ruby, parsed) = alt((
             complete::kanji,
@@ -35,7 +35,7 @@ pub struct RubyBodyIterator<'a> {
 }
 
 impl<'a> Iterator for RubyBodyIterator<'a> {
-    type Item = Token<'a>;
+    type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
         todo!()
     }
@@ -48,7 +48,7 @@ pub struct AnnotationBodyIterator<'a> {
 }
 
 impl<'a> Iterator for AnnotationBodyIterator<'a> {
-    type Item = Token<'a>;
+    type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
         todo!()
     }
@@ -61,7 +61,7 @@ pub struct AnnotationDescriptionIterator<'a> {
 }
 
 impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
-    type Item = Token<'a>;
+    type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
         todo!()
     }

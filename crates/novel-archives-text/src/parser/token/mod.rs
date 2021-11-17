@@ -6,7 +6,7 @@ pub mod iterator;
 mod span;
 
 #[derive(Debug, PartialEq)]
-pub enum Token<'a> {
+pub enum ParsedToken<'a> {
     Term {
         body: Span<'a>,
         term: Arc<term::Term>,
@@ -52,25 +52,27 @@ fn without_variation_selector_count(input: &str) -> usize {
         .count()
 }
 
-impl<'a> From<Token<'a>> for crate::TokenKind {
-    fn from(token: Token<'a>) -> Self {
+impl<'a> From<ParsedToken<'a>> for crate::TokenKind {
+    fn from(token: ParsedToken<'a>) -> Self {
         match token {
-            Token::Term { body, term } => TokenKind::new_term(body.into(), term.as_ref().clone()),
-            Token::Ruby { .. } => todo!(),
-            Token::KanjiRuby { .. } => todo!(),
-            Token::Space(body) => TokenKind::new_spase(body.into()),
-            Token::Kanji(body) => TokenKind::new_kanji(body.into()),
-            Token::Hiragana(body) => TokenKind::new_hiragana(body.into()),
-            Token::Katakana(body) => TokenKind::new_katakana(body.into()),
-            Token::HalfKatakana(body) => TokenKind::new_half_katakana(body.into()),
-            Token::Alphabet(body) => TokenKind::new_alphabet(body.into()),
-            Token::WideAlphabet(body) => TokenKind::new_wide_alphabet(body.into()),
-            Token::Digit { body, digit } => TokenKind::new_digit(body.into(), digit),
-            Token::Annotation { .. } => todo!(),
-            Token::Ignore(body) => TokenKind::new_ignore(body.into()),
-            Token::Punctuation(body) => TokenKind::new_punctuation(body.into()),
-            Token::Other(body) => TokenKind::new_other(body.into()),
-            Token::NewLine(body) => TokenKind::NewLine(body.into()),
+            ParsedToken::Term { body, term } => {
+                TokenKind::new_term(body.into(), term.as_ref().clone())
+            }
+            ParsedToken::Ruby { .. } => todo!(),
+            ParsedToken::KanjiRuby { .. } => todo!(),
+            ParsedToken::Space(body) => TokenKind::new_spase(body.into()),
+            ParsedToken::Kanji(body) => TokenKind::new_kanji(body.into()),
+            ParsedToken::Hiragana(body) => TokenKind::new_hiragana(body.into()),
+            ParsedToken::Katakana(body) => TokenKind::new_katakana(body.into()),
+            ParsedToken::HalfKatakana(body) => TokenKind::new_half_katakana(body.into()),
+            ParsedToken::Alphabet(body) => TokenKind::new_alphabet(body.into()),
+            ParsedToken::WideAlphabet(body) => TokenKind::new_wide_alphabet(body.into()),
+            ParsedToken::Digit { body, digit } => TokenKind::new_digit(body.into(), digit),
+            ParsedToken::Annotation { .. } => todo!(),
+            ParsedToken::Ignore(body) => TokenKind::new_ignore(body.into()),
+            ParsedToken::Punctuation(body) => TokenKind::new_punctuation(body.into()),
+            ParsedToken::Other(body) => TokenKind::new_other(body.into()),
+            ParsedToken::NewLine(body) => TokenKind::NewLine(body.into()),
         }
     }
 }
