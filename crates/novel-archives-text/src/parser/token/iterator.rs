@@ -3,7 +3,7 @@ use nom::branch::alt;
 
 #[derive(new, Debug, PartialEq)]
 pub struct RubyIterator<'a> {
-    ruby: Span<'a>,
+    ruby: ParsedSpan<'a>,
     context: Context,
 }
 
@@ -30,7 +30,7 @@ impl<'a> Iterator for RubyIterator<'a> {
 
 #[derive(new, Debug, PartialEq)]
 pub struct RubyBodyIterator<'a> {
-    body: Span<'a>,
+    body: ParsedSpan<'a>,
     context: Context,
 }
 
@@ -43,7 +43,7 @@ impl<'a> Iterator for RubyBodyIterator<'a> {
 
 #[derive(new, Debug, PartialEq)]
 pub struct AnnotationBodyIterator<'a> {
-    body: Span<'a>,
+    body: ParsedSpan<'a>,
     context: Context,
 }
 
@@ -56,7 +56,7 @@ impl<'a> Iterator for AnnotationBodyIterator<'a> {
 
 #[derive(new, Debug, PartialEq)]
 pub struct AnnotationDescriptionIterator<'a> {
-    description: Span<'a>,
+    description: ParsedSpan<'a>,
     context: Context,
 }
 

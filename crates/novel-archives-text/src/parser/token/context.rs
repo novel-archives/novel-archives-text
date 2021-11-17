@@ -20,7 +20,7 @@ pub struct TermKv {
 impl Context {
     const MAX_RUBY_COUNT_PER_BODY_CHAR: usize = 10;
     const MAX_RUBY_COUNT_BODY: usize = 10;
-    pub fn term<'a>(&self, input: Span<'a>) -> IResult<'a> {
+    pub fn term<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
         let fragment = input.fragment();
         let term_map = &self.term_map.0;
         let first = fragment
@@ -51,7 +51,7 @@ impl Context {
         ))
     }
 
-    pub fn kanji_ruby<'a>(&self, input: Span<'a>) -> IResult<'a> {
+    pub fn kanji_ruby<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
         let (input, body) = complete::kanji1(input)?;
         let mut ruby_parser = delimited(
             take_while_m_n(1, 1, character::is_start_ruby),
@@ -80,7 +80,7 @@ impl Context {
         }
     }
 
-    pub fn directive_ruby<'a>(&self, input: Span<'a>) -> IResult<'a> {
+    pub fn directive_ruby<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
         let (after_parsed_directive, directive) = complete::start_directive(input)?;
         let (after_parsed_ruby, (body, ruby)) = pair(
             take_while(character::is_able_to_ruby_body),
@@ -110,7 +110,7 @@ impl Context {
         }
     }
 
-    pub fn directive_annotation<'a>(&self, input: Span<'a>) -> IResult<'a> {
+    pub fn directive_annotation<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
         tuple((
             complete::start_directive,
             take_while1(character::is_able_to_annotation_body),
@@ -225,7 +225,7 @@ mod tests {
     )]
     fn context_term_works(term_map: TermMap, input: &str) -> IResult {
         let ctx = Context::new(Arc::new(term_map));
-        ctx.term(token::Span::new(input))
+        ctx.term(token::ParsedSpan::new(input))
     }
 
     fn default_ctx() -> Context {
@@ -244,7 +244,7 @@ mod tests {
     #[test_case("漢字アイウエオ"=> Ok((token::test_helper::new_test_result_span(6, 1, "アイウエオ"),ParsedToken::Kanji(token::test_helper::new_test_result_span(0, 1, "漢字")))))]
     #[test_case("カタカナ"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "カタカナ"),nom::error::ErrorKind::TakeWhile1)))]
     fn context_kanji_ruby_works(input: &str) -> IResult {
-        default_ctx().kanji_ruby(token::Span::new(input))
+        default_ctx().kanji_ruby(token::ParsedSpan::new(input))
     }
 
     #[test_case("|漢字(かんじ)"=> Ok((token::test_helper::new_test_result_span(18, 1, ""),
@@ -265,7 +265,7 @@ mod tests {
     #[test_case("|(かんじ)"=> Ok((token::test_helper::new_test_result_span(1, 1, "(かんじ)"),ParsedToken::Ignore(token::test_helper::new_test_result_span(0, 1, "|"))));"half_directive")]
     #[test_case("｜(かんじ)"=> Ok((token::test_helper::new_test_result_span(3, 1, "(かんじ)"),ParsedToken::Ignore(token::test_helper::new_test_result_span(0, 1, "｜"))));"wide_directive")]
     fn directive_ruby_works(input: &str) -> IResult {
-        default_ctx().directive_ruby(token::Span::new(input))
+        default_ctx().directive_ruby(token::ParsedSpan::new(input))
     }
 
     #[test_case("|漢字$かんじ$"=> Ok((token::test_helper::new_test_result_span(18, 1, ""),
@@ -290,6 +290,6 @@ mod tests {
     }));"wide_start")]
     #[test_case("|$hoge$"=> Err(new_error(token::test_helper::new_test_result_span(1, 1, "$hoge$"),nom::error::ErrorKind::TakeWhile1)))]
     fn directive_annotation_works(input: &str) -> IResult {
-        default_ctx().directive_annotation(token::Span::new(input))
+        default_ctx().directive_annotation(token::ParsedSpan::new(input))
     }
 }

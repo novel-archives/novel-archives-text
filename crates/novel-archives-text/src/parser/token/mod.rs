@@ -8,7 +8,7 @@ mod span;
 #[derive(Debug, PartialEq)]
 pub enum ParsedToken<'a> {
     Term {
-        body: Span<'a>,
+        body: ParsedSpan<'a>,
         term: Arc<term::Term>,
     },
     Ruby {
@@ -16,28 +16,28 @@ pub enum ParsedToken<'a> {
         ruby: iterator::RubyIterator<'a>,
     },
     KanjiRuby {
-        body: Span<'a>,
+        body: ParsedSpan<'a>,
         ruby: iterator::RubyIterator<'a>,
     },
-    Space(Span<'a>),
-    Kanji(Span<'a>),
-    Hiragana(Span<'a>),
-    Katakana(Span<'a>),
-    HalfKatakana(Span<'a>),
-    Alphabet(Span<'a>),
-    WideAlphabet(Span<'a>),
+    Space(ParsedSpan<'a>),
+    Kanji(ParsedSpan<'a>),
+    Hiragana(ParsedSpan<'a>),
+    Katakana(ParsedSpan<'a>),
+    HalfKatakana(ParsedSpan<'a>),
+    Alphabet(ParsedSpan<'a>),
+    WideAlphabet(ParsedSpan<'a>),
     Digit {
-        body: Span<'a>,
+        body: ParsedSpan<'a>,
         digit: usize,
     },
     Annotation {
         body: iterator::AnnotationBodyIterator<'a>,
         description: iterator::AnnotationDescriptionIterator<'a>,
     },
-    Ignore(Span<'a>),
-    Punctuation(Span<'a>),
-    Other(Span<'a>),
-    NewLine(Span<'a>),
+    Ignore(ParsedSpan<'a>),
+    Punctuation(ParsedSpan<'a>),
+    Other(ParsedSpan<'a>),
+    NewLine(ParsedSpan<'a>),
 }
 
 pub use context::*;
@@ -80,7 +80,7 @@ impl<'a> From<ParsedToken<'a>> for crate::TokenKind {
 #[cfg(test)]
 pub mod test_helper {
     use super::*;
-    pub fn new_test_result_span(offset: usize, line: u32, fragment: &str) -> Span {
-        unsafe { Span::new_from_raw_offset(offset, line, fragment, ()) }
+    pub fn new_test_result_span(offset: usize, line: u32, fragment: &str) -> ParsedSpan {
+        unsafe { ParsedSpan::new_from_raw_offset(offset, line, fragment, ()) }
     }
 }

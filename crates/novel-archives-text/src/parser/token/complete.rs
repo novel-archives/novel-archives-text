@@ -3,23 +3,23 @@ use nom::bytes::complete::take_while1;
 use nom_extend::character;
 use nom_extend::character::complete;
 
-pub fn newline(input: Span) -> IResult {
+pub fn newline(input: ParsedSpan) -> IResult {
     complete::any_newline(input).map(|(input, parsed)| (input, ParsedToken::NewLine(parsed)))
 }
 
-pub fn kanji(input: Span) -> IResult {
+pub fn kanji(input: ParsedSpan) -> IResult {
     complete::kanji1(input).map(|(input, parsed)| (input, ParsedToken::Kanji(parsed)))
 }
 
-pub fn hiragana(input: Span) -> IResult {
+pub fn hiragana(input: ParsedSpan) -> IResult {
     complete::hiragana1(input).map(|(input, parsed)| (input, ParsedToken::Hiragana(parsed)))
 }
 
-pub fn katakana(input: Span) -> IResult {
+pub fn katakana(input: ParsedSpan) -> IResult {
     complete::katakana1(input).map(|(input, parsed)| (input, ParsedToken::Katakana(parsed)))
 }
 
-pub fn half_and_wide_disit(input: Span) -> IResult {
+pub fn half_and_wide_disit(input: ParsedSpan) -> IResult {
     half_and_wide_usize(input).map(|(input, (parsed, digit))| {
         (
             input,
@@ -31,20 +31,20 @@ pub fn half_and_wide_disit(input: Span) -> IResult {
     })
 }
 
-pub fn alphabet(input: Span) -> IResult {
+pub fn alphabet(input: ParsedSpan) -> IResult {
     complete::alpha1(input).map(|(input, parsed)| (input, ParsedToken::Alphabet(parsed)))
 }
 
-pub fn wide_alphabet(input: Span) -> IResult {
+pub fn wide_alphabet(input: ParsedSpan) -> IResult {
     complete::wide_alphabetic1(input)
         .map(|(input, parsed)| (input, ParsedToken::WideAlphabet(parsed)))
 }
 
-pub fn space(input: Span) -> IResult {
+pub fn space(input: ParsedSpan) -> IResult {
     complete::any_space1(input).map(|(input, parsed)| (input, ParsedToken::Space(parsed)))
 }
 
-pub fn half_and_wide_usize(input: Span) -> IResult<(Span, usize)> {
+pub fn half_and_wide_usize(input: ParsedSpan) -> IResult<(ParsedSpan, usize)> {
     let (input, parsed) = take_while1(character::is_wide_half_disit)(input)?;
     Ok((
         input,
@@ -60,16 +60,16 @@ pub fn half_and_wide_usize(input: Span) -> IResult<(Span, usize)> {
     ))
 }
 
-pub fn half_katakana(input: Span) -> IResult {
+pub fn half_katakana(input: ParsedSpan) -> IResult {
     complete::half_katakana1(input)
         .map(|(input, parsed)| (input, ParsedToken::HalfKatakana(parsed)))
 }
 
-pub fn punctuation(input: Span) -> IResult {
+pub fn punctuation(input: ParsedSpan) -> IResult {
     complete::punctuation1(input).map(|(input, parsed)| (input, ParsedToken::Punctuation(parsed)))
 }
 
-pub fn other_in_ruby(input: Span) -> IResult {
+pub fn other_in_ruby(input: ParsedSpan) -> IResult {
     take_while1(character::is_other_in_ruby)(input)
         .map(|(input, parsed)| (input, ParsedToken::Other(parsed)))
 }
@@ -89,7 +89,7 @@ mod tests {
     #[test_case("\r\n"=> Ok((token::test_helper::new_test_result_span(2, 2, ""),ParsedToken::NewLine(token::test_helper::new_test_result_span(0, 1, "\r\n")))))]
     #[test_case("\r\n\r\n"=> Ok((token::test_helper::new_test_result_span(2, 2, "\r\n"),ParsedToken::NewLine(token::test_helper::new_test_result_span(0, 1, "\r\n")))))]
     fn newline_works(input: &str) -> IResult {
-        newline(token::Span::new(input))
+        newline(token::ParsedSpan::new(input))
     }
 
     #[test_case("漢字"=> Ok((token::test_helper::new_test_result_span(6, 1, ""),ParsedToken::Kanji(token::test_helper::new_test_result_span(0, 1, "漢字")))))]
@@ -97,21 +97,21 @@ mod tests {
     #[test_case("なか漢字なか"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "なか漢字なか"),nom::error::ErrorKind::TakeWhile1)))]
     #[test_case("かんじなし"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "かんじなし"),nom::error::ErrorKind::TakeWhile1)))]
     fn kanji_works(input: &str) -> IResult {
-        kanji(token::Span::new(input))
+        kanji(token::ParsedSpan::new(input))
     }
 
     #[test_case("ひらがな"=> Ok((token::test_helper::new_test_result_span(12, 1, ""),ParsedToken::Hiragana(token::test_helper::new_test_result_span(0, 1, "ひらがな")))))]
     #[test_case("ひらがなと漢字"=> Ok((token::test_helper::new_test_result_span(15, 1, "漢字"),ParsedToken::Hiragana(token::test_helper::new_test_result_span(0, 1, "ひらがなと")))))]
     #[test_case("中ひらがな中"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "中ひらがな中"),nom::error::ErrorKind::TakeWhile1)))]
     fn hiragana_works(input: &str) -> IResult {
-        hiragana(token::Span::new(input))
+        hiragana(token::ParsedSpan::new(input))
     }
 
     #[test_case("カタカナ"=> Ok((token::test_helper::new_test_result_span(12, 1, ""),ParsedToken::Katakana(token::test_helper::new_test_result_span(0, 1, "カタカナ")))))]
     #[test_case("カタカナと漢字"=> Ok((token::test_helper::new_test_result_span(12, 1, "と漢字"),ParsedToken::Katakana(token::test_helper::new_test_result_span(0, 1, "カタカナ")))))]
     #[test_case("中カタカナ中"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
     fn katakana_works(input: &str) -> IResult {
-        katakana(token::Span::new(input))
+        katakana(token::ParsedSpan::new(input))
     }
 
     #[test_case("１３32"=> Ok((token::test_helper::new_test_result_span(8, 1, ""),ParsedToken::Digit{body:token::test_helper::new_test_result_span(0, 1, "１３32"),digit:1332})))]
@@ -120,34 +120,34 @@ mod tests {
     #[test_case("999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
         => Err(new_error(token::test_helper::new_test_result_span(0, 1, "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"),nom::error::ErrorKind::Digit)))]
     fn half_and_wide_disit_works(input: &str) -> IResult {
-        half_and_wide_disit(token::Span::new(input))
+        half_and_wide_disit(token::ParsedSpan::new(input))
     }
 
     #[test_case(" 　\t"=> Ok((token::test_helper::new_test_result_span(5, 1, ""),ParsedToken::Space(token::test_helper::new_test_result_span(0, 1, " 　\t")))))]
     #[test_case(" 　\tカタカナと漢字"=> Ok((token::test_helper::new_test_result_span(5, 1, "カタカナと漢字"),ParsedToken::Space(token::test_helper::new_test_result_span(0, 1, " 　\t")))))]
     #[test_case("中カタカナ中"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
     fn space_works(input: &str) -> IResult {
-        space(token::Span::new(input))
+        space(token::ParsedSpan::new(input))
     }
 
     #[test_case("ｓｃｄ"=> Ok((token::test_helper::new_test_result_span(9, 1, ""),ParsedToken::WideAlphabet(token::test_helper::new_test_result_span(0, 1, "ｓｃｄ")))))]
     #[test_case("ｓｃｄと漢字"=> Ok((token::test_helper::new_test_result_span(9, 1, "と漢字"),ParsedToken::WideAlphabet(token::test_helper::new_test_result_span(0, 1, "ｓｃｄ")))))]
     #[test_case("中カタカナ中"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
     fn wide_alphabet_works(input: &str) -> IResult {
-        wide_alphabet(token::Span::new(input))
+        wide_alphabet(token::ParsedSpan::new(input))
     }
 
     #[test_case("ｱｲｳｴｵ"=> Ok((token::test_helper::new_test_result_span(15, 1, ""),ParsedToken::HalfKatakana(token::test_helper::new_test_result_span(0, 1, "ｱｲｳｴｵ")))))]
     #[test_case("ｱｲｳｴｵアイウエオ"=> Ok((token::test_helper::new_test_result_span(15, 1, "アイウエオ"),ParsedToken::HalfKatakana(token::test_helper::new_test_result_span(0, 1, "ｱｲｳｴｵ")))))]
     #[test_case("中カタカナ中"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
     fn half_katakana_works(input: &str) -> IResult {
-        half_katakana(token::Span::new(input))
+        half_katakana(token::ParsedSpan::new(input))
     }
 
     #[test_case("。ｱｲｳｴｵ"=> Ok((token::test_helper::new_test_result_span(3, 1, "ｱｲｳｴｵ"),ParsedToken::Punctuation(token::test_helper::new_test_result_span(0, 1, "。"))));"punctuation_circle")]
     #[test_case("、ｱｲｳｴｵ"=> Ok((token::test_helper::new_test_result_span(3, 1, "ｱｲｳｴｵ"),ParsedToken::Punctuation(token::test_helper::new_test_result_span(0, 1, "、"))));"punctuation_dot")]
     #[test_case("中カタカナ中"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "中カタカナ中"),nom::error::ErrorKind::TakeWhile1)))]
     fn punctuation_works(input: &str) -> IResult {
-        punctuation(token::Span::new(input))
+        punctuation(token::ParsedSpan::new(input))
     }
 }
