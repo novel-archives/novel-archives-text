@@ -56,8 +56,10 @@ impl<'a> From<ParsedToken<'a>> for crate::Token {
     fn from(token: ParsedToken<'a>) -> Self {
         match token {
             ParsedToken::Term { body, term } => Token::new_term(body.into(), term.as_ref().clone()),
-            ParsedToken::Ruby { .. } => todo!(),
-            ParsedToken::KanjiRuby { .. } => todo!(),
+            ParsedToken::Ruby { body, ruby } => Token::new_ruby(body.into(), ruby.into()),
+            ParsedToken::KanjiRuby { body, ruby } => {
+                Token::new_kanji_ruby(body.into(), ruby.into())
+            }
             ParsedToken::Space(body) => Token::new_spase(body.into()),
             ParsedToken::Kanji(body) => Token::new_kanji(body.into()),
             ParsedToken::Hiragana(body) => Token::new_hiragana(body.into()),
@@ -66,7 +68,9 @@ impl<'a> From<ParsedToken<'a>> for crate::Token {
             ParsedToken::Alphabet(body) => Token::new_alphabet(body.into()),
             ParsedToken::WideAlphabet(body) => Token::new_wide_alphabet(body.into()),
             ParsedToken::Digit { body, digit } => Token::new_digit(body.into(), digit),
-            ParsedToken::Annotation { .. } => todo!(),
+            ParsedToken::Annotation { body, description } => {
+                Token::new_annotation(body.into(), description.into())
+            }
             ParsedToken::Ignore(body) => Token::new_ignore(body.into()),
             ParsedToken::Punctuation(body) => Token::new_punctuation(body.into()),
             ParsedToken::Other(body) => Token::new_other(body.into()),

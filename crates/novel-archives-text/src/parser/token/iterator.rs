@@ -28,6 +28,12 @@ impl<'a> Iterator for RubyIterator<'a> {
     }
 }
 
+impl<'a> From<RubyIterator<'a>> for TokenText {
+    fn from(iter: RubyIterator<'a>) -> Self {
+        Self::new(iter.map(|pt| pt.into()).collect())
+    }
+}
+
 #[derive(new, Debug, PartialEq)]
 pub struct RubyBodyIterator<'a> {
     body: ParsedSpan<'a>,
@@ -38,6 +44,12 @@ impl<'a> Iterator for RubyBodyIterator<'a> {
     type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
         todo!()
+    }
+}
+
+impl<'a> From<RubyBodyIterator<'a>> for TokenText {
+    fn from(iter: RubyBodyIterator<'a>) -> Self {
+        Self::new(iter.map(|pt| pt.into()).collect())
     }
 }
 
@@ -54,6 +66,12 @@ impl<'a> Iterator for AnnotationBodyIterator<'a> {
     }
 }
 
+impl<'a> From<AnnotationBodyIterator<'a>> for TokenText {
+    fn from(iter: AnnotationBodyIterator<'a>) -> Self {
+        Self::new(iter.map(|pt| pt.into()).collect())
+    }
+}
+
 #[derive(new, Debug, PartialEq)]
 pub struct AnnotationDescriptionIterator<'a> {
     description: ParsedSpan<'a>,
@@ -64,5 +82,11 @@ impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
     type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
         todo!()
+    }
+}
+
+impl<'a> From<AnnotationDescriptionIterator<'a>> for TokenText {
+    fn from(iter: AnnotationDescriptionIterator<'a>) -> Self {
+        Self::new(iter.map(|pt| pt.into()).collect())
     }
 }
