@@ -16,7 +16,7 @@ impl ToString for TokenText {
 #[derive(Debug, PartialEq, Clone, new)]
 pub enum TokenKind {
     Term {
-        body: Token,
+        body: Span,
         term: Term,
     },
     Ruby {
@@ -24,28 +24,28 @@ pub enum TokenKind {
         ruby: TokenText,
         point: Position,
     },
-    Spase(Token),
-    Kanji(Token),
-    Hiragana(Token),
-    Katakana(Token),
-    HalfKatakana(Token),
-    Alphabet(Token),
-    WideAlphabet(Token),
-    ZenkakuAlphabet(Token),
+    Spase(Span),
+    Kanji(Span),
+    Hiragana(Span),
+    Katakana(Span),
+    HalfKatakana(Span),
+    Alphabet(Span),
+    WideAlphabet(Span),
+    ZenkakuAlphabet(Span),
     Digit {
-        body: Token,
+        body: Span,
         digit: usize,
     },
-    ZenkakuNumber(Token),
-    LinkAnnotation(Token),
+    ZenkakuNumber(Span),
+    LinkAnnotation(Span),
     Annotation {
-        marker: Token,
+        marker: Span,
         description: TokenText,
     },
-    Ignore(Token),
-    Punctuation(Token),
-    Other(Token),
-    NewLine(Token),
+    Ignore(Span),
+    Punctuation(Span),
+    Other(Span),
+    NewLine(Span),
 }
 
 impl ToString for TokenKind {
@@ -74,7 +74,7 @@ impl ToString for TokenKind {
 }
 
 #[derive(Debug, PartialEq, Clone, new, Getters)]
-pub struct Token {
+pub struct Span {
     body: String,
     originel_position: Position,
 }
