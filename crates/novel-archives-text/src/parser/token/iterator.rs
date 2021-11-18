@@ -90,3 +90,39 @@ impl<'a> From<AnnotationDescriptionIterator<'a>> for TokenText {
         Self::new(iter.map(|pt| pt.into()).collect())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test_case::test_case;
+
+    #[test_case(""=>TokenText::new(vec![]);"empty")]
+    #[test_case("感じ"=>TokenText::new(vec![
+            Token::new_kanji(Span::new("感".into(),Position::new(1,0))),
+            Token::new_hiragana(Span::new("じ".into(),Position::new(1,3))),
+    ]))]
+    #[test_case("感じ aｋ3３"=>TokenText::new(vec![
+            Token::new_kanji(Span::new("感".into(),Position::new(1,0))),
+            Token::new_hiragana(Span::new("じ".into(),Position::new(1,3))),
+            Token::new_spase(Span::new(" ".into(),Position::new(1,6))),
+            Token::new_alphabet(Span::new("a".into(),Position::new(1,7))),
+            Token::new_wide_alphabet(Span::new("ｋ".into(),Position::new(1,8))),
+            Token::new_digit(Span::new("3３".into(),Position::new(1,11)),33),
+    ]))]
+    #[test_case("缶じ *aｋ3３"=>TokenText::new(vec![
+            Token::new_kanji(Span::new("缶".into(),Position::new(1,0))),
+            Token::new_hiragana(Span::new("じ".into(),Position::new(1,3))),
+            Token::new_spase(Span::new(" ".into(),Position::new(1,6))),
+            Token::new_other(Span::new("*".into(),Position::new(1,7))),
+            Token::new_alphabet(Span::new("a".into(),Position::new(1,8))),
+            Token::new_wide_alphabet(Span::new("ｋ".into(),Position::new(1,9))),
+            Token::new_digit(Span::new("3３".into(),Position::new(1,12)),33),
+    ]))]
+    fn ruby_iterator_works(input: &str) -> TokenText {
+        let ruby_iter = RubyIterator::new(
+            token::ParsedSpan::new(input),
+            Context::new(Arc::new(TermMap::new(&[]))),
+        );
+        ruby_iter.into()
+    }
+}

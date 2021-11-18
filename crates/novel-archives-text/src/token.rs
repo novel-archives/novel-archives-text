@@ -39,7 +39,6 @@ pub enum Token {
         body: Span,
         digit: usize,
     },
-    ZenkakuNumber(Span),
     LinkAnnotation(Span),
     Annotation {
         marker: TokenText,
@@ -66,7 +65,6 @@ impl ToString for Token {
             Token::WideAlphabet(body) => body.body().clone(),
             Token::ZenkakuAlphabet(body) => body.body().clone(),
             Token::Digit { body, .. } => body.body().clone(),
-            Token::ZenkakuNumber(body) => body.body().clone(),
             Token::LinkAnnotation(body) => body.body().clone(),
             Token::Annotation { marker, .. } => marker.to_string(),
             Token::Ignore(body) => body.body().clone(),
