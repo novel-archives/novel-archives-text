@@ -73,7 +73,21 @@ pub struct AnnotationBodyIterator<'a> {
 impl<'a> Iterator for AnnotationBodyIterator<'a> {
     type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
-        todo!()
+        let (body, parsed) = alt((
+            complete::kanji_ruby,
+            complete::space,
+            complete::hiragana,
+            complete::katakana,
+            complete::half_and_wide_disit,
+            complete::alphabet,
+            complete::wide_alphabet,
+            complete::half_katakana,
+            complete::punctuation,
+            complete::other_in_annotation_body,
+        ))(self.body)
+        .ok()?;
+        self.body = body;
+        Some(parsed)
     }
 }
 

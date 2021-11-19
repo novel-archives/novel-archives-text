@@ -111,6 +111,11 @@ pub fn other_in_ruby_body(input: ParsedSpan) -> IResult {
         .map(|(input, parsed)| (input, ParsedToken::Other(parsed)))
 }
 
+pub fn other_in_annotation_body(input: ParsedSpan) -> IResult {
+    take_while1(character::is_other_in_annotation_body)(input)
+        .map(|(input, parsed)| (input, ParsedToken::Other(parsed)))
+}
+
 pub fn directive_ruby(input: ParsedSpan) -> IResult {
     let (after_parsed_directive, directive) = complete::start_directive(input)?;
     let (after_parsed_ruby, (body, ruby)) = pair(
