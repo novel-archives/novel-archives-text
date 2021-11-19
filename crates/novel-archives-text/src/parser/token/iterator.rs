@@ -68,7 +68,6 @@ impl<'a> From<RubyBodyIterator<'a>> for TokenText {
 #[derive(new, Debug, PartialEq)]
 pub struct AnnotationBodyIterator<'a> {
     body: ParsedSpan<'a>,
-    context: Context,
 }
 
 impl<'a> Iterator for AnnotationBodyIterator<'a> {
