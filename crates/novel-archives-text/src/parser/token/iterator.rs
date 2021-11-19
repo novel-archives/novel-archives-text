@@ -106,7 +106,22 @@ pub struct AnnotationDescriptionIterator<'a> {
 impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
     type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
-        todo!()
+        let (description, parsed) = alt((
+            |input| self.context.term(input),
+            complete::kanji_ruby,
+            complete::space,
+            complete::hiragana,
+            complete::katakana,
+            complete::half_and_wide_disit,
+            complete::alphabet,
+            complete::wide_alphabet,
+            complete::half_katakana,
+            complete::punctuation,
+            complete::other_in_annotation_body,
+        ))(self.description)
+        .ok()?;
+        self.description = description;
+        Some(parsed)
     }
 }
 
