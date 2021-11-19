@@ -1,6 +1,6 @@
 use super::*;
-use nom::bytes::complete::{take_while1, take_while_m_n};
-use nom::sequence::delimited;
+use nom::bytes::complete::{take_while, take_while1, take_while_m_n};
+use nom::sequence::{delimited, pair};
 use nom_extend::character;
 use nom_extend::character::complete;
 
@@ -12,6 +12,8 @@ pub fn kanji(input: ParsedSpan) -> IResult {
     complete::kanji1(input).map(|(input, parsed)| (input, ParsedToken::Kanji(parsed)))
 }
 
+const MAX_RUBY_COUNT_PER_BODY_CHAR: usize = 10;
+const MAX_RUBY_COUNT_BODY: usize = 10;
 pub fn kanji_ruby(input: ParsedSpan) -> IResult {
     let (input, body) = complete::kanji1(input)?;
     let mut ruby_parser = delimited(
@@ -23,9 +25,9 @@ pub fn kanji_ruby(input: ParsedSpan) -> IResult {
     match result {
         Ok((forword_input, ruby)) => {
             let body_count = without_variation_selector_count(body.fragment());
-            if body_count <= Context::MAX_RUBY_COUNT_BODY {
+            if body_count <= MAX_RUBY_COUNT_BODY {
                 let ruby_count = without_variation_selector_count(ruby.fragment());
-                if ruby_count <= Context::MAX_RUBY_COUNT_PER_BODY_CHAR * body_count {
+                if ruby_count <= MAX_RUBY_COUNT_PER_BODY_CHAR * body_count {
                     return Ok((
                         forword_input,
                         ParsedToken::KanjiRuby {
@@ -102,6 +104,41 @@ pub fn punctuation(input: ParsedSpan) -> IResult {
 pub fn other_in_ruby(input: ParsedSpan) -> IResult {
     take_while1(character::is_other_in_ruby)(input)
         .map(|(input, parsed)| (input, ParsedToken::Other(parsed)))
+}
+
+pub fn other_in_ruby_body(input: ParsedSpan) -> IResult {
+    take_while1(character::is_other_in_ruby_body)(input)
+        .map(|(input, parsed)| (input, ParsedToken::Other(parsed)))
+}
+
+pub fn directive_ruby(input: ParsedSpan) -> IResult {
+    let (after_parsed_directive, directive) = complete::start_directive(input)?;
+    let (after_parsed_ruby, (body, ruby)) = pair(
+        take_while(character::is_able_to_ruby_body),
+        delimited(
+            take_while_m_n(1, 1, character::is_start_ruby),
+            complete::able_to_ruby,
+            take_while_m_n(1, 1, character::is_end_ruby),
+        ),
+    )(after_parsed_directive)?;
+    if body.fragment().is_empty() {
+        Ok((after_parsed_directive, ParsedToken::Ignore(directive)))
+    } else {
+        let body_count = without_variation_selector_count(body.fragment());
+        let max_ruby_count = body_count * MAX_RUBY_COUNT_PER_BODY_CHAR;
+
+        if without_variation_selector_count(ruby.fragment()) <= max_ruby_count {
+            Ok((
+                after_parsed_ruby,
+                ParsedToken::Ruby {
+                    body: iterator::RubyBodyIterator::new(body),
+                    ruby: iterator::RubyIterator::new(ruby),
+                },
+            ))
+        } else {
+            Ok((after_parsed_directive, ParsedToken::Other(directive)))
+        }
+    }
 }
 
 #[cfg(test)]
@@ -194,5 +231,26 @@ mod tests {
     #[test_case("カタカナ"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "カタカナ"),nom::error::ErrorKind::TakeWhile1)))]
     fn context_kanji_ruby_works(input: &str) -> IResult {
         kanji_ruby(token::ParsedSpan::new(input))
+    }
+
+    #[test_case("|漢字(かんじ)"=> Ok((token::test_helper::new_test_result_span(18, 1, ""),
+    ParsedToken::Ruby{
+        body: iterator::RubyBodyIterator::new(token::test_helper::new_test_result_span(1, 1, "漢字")),
+        ruby: iterator::RubyIterator::new(token::test_helper::new_test_result_span(8, 1, "かんじ")),
+    })))]
+    #[test_case("|ほげ（ふが)"=> Ok((token::test_helper::new_test_result_span(17, 1, ""),
+    ParsedToken::Ruby{
+        body: iterator::RubyBodyIterator::new(token::test_helper::new_test_result_span(1, 1, "ほげ")),
+        ruby: iterator::RubyIterator::new(token::test_helper::new_test_result_span(10, 1, "ふが")),
+    })))]
+    #[test_case("|ふ符(hoho）"=> Ok((token::test_helper::new_test_result_span(15, 1, ""),
+    ParsedToken::Ruby{
+        body: iterator::RubyBodyIterator::new(token::test_helper::new_test_result_span(1, 1, "ふ符")),
+        ruby: iterator::RubyIterator::new(token::test_helper::new_test_result_span(8, 1, "hoho")),
+    })))]
+    #[test_case("|(かんじ)"=> Ok((token::test_helper::new_test_result_span(1, 1, "(かんじ)"),ParsedToken::Ignore(token::test_helper::new_test_result_span(0, 1, "|"))));"half_directive")]
+    #[test_case("｜(かんじ)"=> Ok((token::test_helper::new_test_result_span(3, 1, "(かんじ)"),ParsedToken::Ignore(token::test_helper::new_test_result_span(0, 1, "｜"))));"wide_directive")]
+    fn directive_ruby_works(input: &str) -> IResult {
+        directive_ruby(token::ParsedSpan::new(input))
     }
 }
