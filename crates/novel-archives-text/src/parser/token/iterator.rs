@@ -109,6 +109,7 @@ impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
         let (description, parsed) = alt((
             |input| self.context.term(input),
             complete::kanji_ruby,
+            complete::directive_ruby,
             complete::space,
             complete::hiragana,
             complete::katakana,
@@ -117,7 +118,7 @@ impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
             complete::wide_alphabet,
             complete::half_katakana,
             complete::punctuation,
-            complete::other_in_annotation_body,
+            complete::other_in_annotation_description,
         ))(self.description)
         .ok()?;
         self.description = description;
@@ -128,6 +129,36 @@ impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
 impl<'a> From<AnnotationDescriptionIterator<'a>> for TokenText {
     fn from(iter: AnnotationDescriptionIterator<'a>) -> Self {
         Self::new(iter.map(|pt| pt.into()).collect())
+    }
+}
+
+#[derive(new, Debug, PartialEq)]
+pub struct TextIterator<'a> {
+    input: ParsedSpan<'a>,
+    context: Context,
+}
+
+impl<'a> Iterator for TextIterator<'a> {
+    type Item = ParsedToken<'a>;
+    fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
+        let (input, parsed) = alt((
+            |input| self.context.term(input),
+            |input| self.context.directive_annotation(input),
+            complete::kanji_ruby,
+            complete::directive_ruby,
+            complete::space,
+            complete::hiragana,
+            complete::katakana,
+            complete::half_and_wide_disit,
+            complete::alphabet,
+            complete::wide_alphabet,
+            complete::half_katakana,
+            complete::punctuation,
+            complete::other_in_annotation_text,
+        ))(self.input)
+        .ok()?;
+        self.input = input;
+        Some(parsed)
     }
 }
 

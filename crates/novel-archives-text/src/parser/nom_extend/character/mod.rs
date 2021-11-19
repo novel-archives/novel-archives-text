@@ -156,6 +156,41 @@ pub fn is_other_in_annotation_body(c: char) -> bool {
         || is_any_newline(c))
 }
 
+pub fn is_other_in_annotation_description(c: char) -> bool {
+    !(is_wide_half_alphabetic(c)
+        || is_wide_half_disit(c)
+        || is_hiragana(c)
+        || is_kanji(c)
+        || is_any_space(c)
+        || is_katakana(c)
+        || is_wide_half_alphabetic(c)
+        || is_half_katakana(c)
+        || is_punctuation(c)
+        || is_any_newline(c)
+        || is_start_directive(c)
+        || is_start_annotation(c)
+        || is_start_ruby(c)
+        || is_end_annotation(c)
+        || is_end_ruby(c))
+}
+
+pub fn is_other_in_text(c: char) -> bool {
+    !(is_wide_half_alphabetic(c)
+        || is_wide_half_disit(c)
+        || is_hiragana(c)
+        || is_kanji(c)
+        || is_any_space(c)
+        || is_katakana(c)
+        || is_wide_half_alphabetic(c)
+        || is_half_katakana(c)
+        || is_punctuation(c)
+        || is_start_directive(c)
+        || is_start_annotation(c)
+        || is_start_ruby(c)
+        || is_end_annotation(c)
+        || is_end_ruby(c))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
