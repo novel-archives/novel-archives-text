@@ -18,8 +18,8 @@ pub struct TermKv {
 }
 
 impl Context {
-    const MAX_RUBY_COUNT_PER_BODY_CHAR: usize = 10;
-    const MAX_RUBY_COUNT_BODY: usize = 10;
+    pub const MAX_RUBY_COUNT_PER_BODY_CHAR: usize = 10;
+    pub const MAX_RUBY_COUNT_BODY: usize = 10;
     pub fn term<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
         let fragment = input.fragment();
         let term_map = &self.term_map.0;
@@ -51,35 +51,6 @@ impl Context {
         ))
     }
 
-    pub fn kanji_ruby<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
-        let (input, body) = complete::kanji1(input)?;
-        let mut ruby_parser = delimited(
-            take_while_m_n(1, 1, character::is_start_ruby),
-            complete::able_to_ruby,
-            take_while_m_n(1, 1, character::is_end_ruby),
-        );
-        let result = ruby_parser(input);
-        match result {
-            Ok((forword_input, ruby)) => {
-                let body_count = without_variation_selector_count(body.fragment());
-                if body_count <= Self::MAX_RUBY_COUNT_BODY {
-                    let ruby_count = without_variation_selector_count(ruby.fragment());
-                    if ruby_count <= Self::MAX_RUBY_COUNT_PER_BODY_CHAR * body_count {
-                        return Ok((
-                            forword_input,
-                            ParsedToken::KanjiRuby {
-                                body,
-                                ruby: iterator::RubyIterator::new(ruby, self.clone()),
-                            },
-                        ));
-                    }
-                }
-                Ok((input, ParsedToken::Kanji(body)))
-            }
-            Err(_) => Ok((input, ParsedToken::Kanji(body))),
-        }
-    }
-
     pub fn directive_ruby<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
         let (after_parsed_directive, directive) = complete::start_directive(input)?;
         let (after_parsed_ruby, (body, ruby)) = pair(
@@ -101,7 +72,7 @@ impl Context {
                     after_parsed_ruby,
                     ParsedToken::Ruby {
                         body: iterator::RubyBodyIterator::new(body, self.clone()),
-                        ruby: iterator::RubyIterator::new(ruby, self.clone()),
+                        ruby: iterator::RubyIterator::new(ruby),
                     },
                 ))
             } else {
@@ -232,35 +203,20 @@ mod tests {
         Context::new(Arc::new(TermMap::new(&[])))
     }
 
-    #[test_case("漢字"=> Ok((token::test_helper::new_test_result_span(6, 1, ""),ParsedToken::Kanji(token::test_helper::new_test_result_span(0, 1, "漢字")))))]
-    #[test_case("漢字|(かんじ)"=> Ok((token::test_helper::new_test_result_span(6, 1, "|(かんじ)"),ParsedToken::Kanji(token::test_helper::new_test_result_span(0, 1, "漢字")))))]
-    #[test_case("漢字(かんじ)"=> Ok((token::test_helper::new_test_result_span(17, 1, ""),ParsedToken::KanjiRuby{body:token::test_helper::new_test_result_span(0, 1, "漢字"),
-    ruby:iterator::RubyIterator::new(test_helper::new_test_result_span(7, 1, "かんじ"),default_ctx())}));"half")]
-    #[test_case("漢字漢字漢字漢字漢字字(かんじ)"=> Ok((token::test_helper::new_test_result_span(33, 1, "(かんじ)"),ParsedToken::Kanji(token::test_helper::new_test_result_span(0, 1, "漢字漢字漢字漢字漢字字")))))]
-    #[test_case("邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄(なべなべなべなべなべ)"=> Ok((token::test_helper::new_test_result_span(102, 1, ""),ParsedToken::KanjiRuby{body:token::test_helper::new_test_result_span(0, 1, "邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄邊󠄄"),
-    ruby:iterator::RubyIterator::new(test_helper::new_test_result_span(71, 1, "なべなべなべなべなべ"),default_ctx())}));"nabe")]
-    #[test_case("漢字（かんじ）"=> Ok((token::test_helper::new_test_result_span(21, 1, ""),ParsedToken::KanjiRuby{body:token::test_helper::new_test_result_span(0, 1, "漢字"),
-    ruby:iterator::RubyIterator::new(test_helper::new_test_result_span(9, 1, "かんじ"),Context::new(Arc::new(TermMap::new(&[]))))}));"wide")]
-    #[test_case("漢字アイウエオ"=> Ok((token::test_helper::new_test_result_span(6, 1, "アイウエオ"),ParsedToken::Kanji(token::test_helper::new_test_result_span(0, 1, "漢字")))))]
-    #[test_case("カタカナ"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "カタカナ"),nom::error::ErrorKind::TakeWhile1)))]
-    fn context_kanji_ruby_works(input: &str) -> IResult {
-        default_ctx().kanji_ruby(token::ParsedSpan::new(input))
-    }
-
     #[test_case("|漢字(かんじ)"=> Ok((token::test_helper::new_test_result_span(18, 1, ""),
     ParsedToken::Ruby{
         body: iterator::RubyBodyIterator::new(token::test_helper::new_test_result_span(1, 1, "漢字"),default_ctx()),
-        ruby: iterator::RubyIterator::new(token::test_helper::new_test_result_span(8, 1, "かんじ"),default_ctx()),
+        ruby: iterator::RubyIterator::new(token::test_helper::new_test_result_span(8, 1, "かんじ")),
     })))]
     #[test_case("|ほげ（ふが)"=> Ok((token::test_helper::new_test_result_span(17, 1, ""),
     ParsedToken::Ruby{
         body: iterator::RubyBodyIterator::new(token::test_helper::new_test_result_span(1, 1, "ほげ"),default_ctx()),
-        ruby: iterator::RubyIterator::new(token::test_helper::new_test_result_span(10, 1, "ふが"),default_ctx()),
+        ruby: iterator::RubyIterator::new(token::test_helper::new_test_result_span(10, 1, "ふが")),
     })))]
     #[test_case("|ふ符(hoho）"=> Ok((token::test_helper::new_test_result_span(15, 1, ""),
     ParsedToken::Ruby{
         body: iterator::RubyBodyIterator::new(token::test_helper::new_test_result_span(1, 1, "ふ符"),default_ctx()),
-        ruby: iterator::RubyIterator::new(token::test_helper::new_test_result_span(8, 1, "hoho"),default_ctx()),
+        ruby: iterator::RubyIterator::new(token::test_helper::new_test_result_span(8, 1, "hoho")),
     })))]
     #[test_case("|(かんじ)"=> Ok((token::test_helper::new_test_result_span(1, 1, "(かんじ)"),ParsedToken::Ignore(token::test_helper::new_test_result_span(0, 1, "|"))));"half_directive")]
     #[test_case("｜(かんじ)"=> Ok((token::test_helper::new_test_result_span(3, 1, "(かんじ)"),ParsedToken::Ignore(token::test_helper::new_test_result_span(0, 1, "｜"))));"wide_directive")]

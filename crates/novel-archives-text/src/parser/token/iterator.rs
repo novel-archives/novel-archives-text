@@ -4,7 +4,6 @@ use nom::branch::alt;
 #[derive(new, Debug, PartialEq)]
 pub struct RubyIterator<'a> {
     ruby: ParsedSpan<'a>,
-    context: Context,
 }
 
 impl<'a> Iterator for RubyIterator<'a> {
@@ -119,10 +118,7 @@ mod tests {
             Token::new_digit(Span::new("3３".into(),Position::new(1,12)),33),
     ]))]
     fn ruby_iterator_works(input: &str) -> TokenText {
-        let ruby_iter = RubyIterator::new(
-            token::ParsedSpan::new(input),
-            Context::new(Arc::new(TermMap::new(&[]))),
-        );
+        let ruby_iter = RubyIterator::new(token::ParsedSpan::new(input));
         ruby_iter.into()
     }
 }
