@@ -41,7 +41,6 @@ pub enum Token {
     HalfKatakana(Span),
     Alphabet(Span),
     WideAlphabet(Span),
-    ZenkakuAlphabet(Span),
     Digit {
         body: Span,
         digit: usize,
@@ -69,7 +68,6 @@ impl ToString for Token {
             Token::HalfKatakana(body) => body.body().clone(),
             Token::Alphabet(body) => body.body().clone(),
             Token::WideAlphabet(body) => body.body().clone(),
-            Token::ZenkakuAlphabet(body) => body.body().clone(),
             Token::Digit { body, .. } => body.body().clone(),
             Token::Annotation {
                 marker,
@@ -89,11 +87,33 @@ pub struct Span {
     originel_position: Position,
 }
 
-#[derive(Debug, PartialEq, Clone, new, Getters)]
+#[derive(Debug, PartialEq, Clone, Default, new, Getters)]
 pub struct Position {
     line: usize,
     byte_offset: usize,
 }
 
 #[cfg(test)]
-mod test_helper {}
+mod test {
+    use super::*;
+    use test_case::test_case;
+
+    #[test_case(Token::new_kanji(Span::new("漢字".into(),Position::default()))=>"漢字")]
+    #[test_case(Token::new_kanji_ruby(Span::new("漢字".into(),Position::default()),TokenText::new(vec![Token::new_hiragana(Span::new("かんじ".into(),Position::default()))]))=>"漢字(かんじ)")]
+    #[test_case(Token::new_ruby(TokenText::new(vec![Token::new_hiragana(Span::new("暗黒".into(),Position::default()))]),TokenText::new(vec![Token::new_hiragana(Span::new("ダークパワー".into(),Position::default()))]))=>"|暗黒《ダークパワー》")]
+    #[test_case(Token::new_annotation(TokenText::new(vec![Token::new_hiragana(Span::new("暗黒".into(),Position::default()))]),TokenText::new(vec![Token::new_hiragana(Span::new("光と闇の力が合わさり最強に見える".into(),Position::default()))]))=>"|暗黒$光と闇の力が合わさり最強に見える$")]
+    #[test_case(Token::new_spase(Span::new("  ".into(),Position::default()))=>"  ")]
+    #[test_case(Token::new_hiragana(Span::new("あいう".into(),Position::default()))=>"あいう")]
+    #[test_case(Token::new_katakana(Span::new("アイウ".into(),Position::default()))=>"アイウ")]
+    #[test_case(Token::new_half_katakana(Span::new("ｱｲｳ".into(),Position::default()))=>"ｱｲｳ")]
+    #[test_case(Token::new_alphabet(Span::new("abc".into(),Position::default()))=>"abc")]
+    #[test_case(Token::new_wide_alphabet(Span::new("ｂｃｄ".into(),Position::default()))=>"ｂｃｄ")]
+    #[test_case(Token::new_digit(Span::new("3３".into(),Position::default()),33)=>"3３")]
+    #[test_case(Token::new_ignore(Span::new("|".into(),Position::default()))=>"|")]
+    #[test_case(Token::new_punctuation(Span::new("。".into(),Position::default()))=>"。")]
+    #[test_case(Token::new_other(Span::new("#".into(),Position::default()))=>"#")]
+    #[test_case(Token::new_new_line(Span::new("\n".into(),Position::default()))=>"\n")]
+    fn token_to_string_works(token: Token) -> String {
+        token.to_string()
+    }
+}
