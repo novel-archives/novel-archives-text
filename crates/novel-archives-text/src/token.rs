@@ -1,5 +1,5 @@
 use crate::term::Term;
-use std::fmt::Write;
+use std::{fmt::Write, ops::Deref};
 #[derive(Debug, PartialEq, Clone, new)]
 pub struct TokenText(Vec<Token>);
 
@@ -10,6 +10,13 @@ impl ToString for TokenText {
             write!(&mut s, "{}", t.to_string()).unwrap();
         }
         s
+    }
+}
+
+impl Deref for TokenText {
+    type Target = Vec<Token>;
+    fn deref(&self) -> &<Self as std::ops::Deref>::Target {
+        &self.0
     }
 }
 
@@ -39,7 +46,6 @@ pub enum Token {
         body: Span,
         digit: usize,
     },
-    LinkAnnotation(Span),
     Annotation {
         marker: TokenText,
         description: TokenText,
@@ -54,10 +60,10 @@ impl ToString for Token {
     fn to_string(&self) -> std::string::String {
         match self {
             Token::Term { body, .. } => body.body().clone(),
-            Token::Ruby { body, .. } => body.to_string(),
+            Token::Ruby { body, ruby } => format!("|{}《{}》", body.to_string(), ruby.to_string()),
             Token::Spase(body) => body.body().clone(),
             Token::Kanji(body) => body.body().clone(),
-            Token::KanjiRuby { body, .. } => body.body().clone(),
+            Token::KanjiRuby { body, ruby } => format!("{}({})", body.body(), ruby.to_string()),
             Token::Hiragana(body) => body.body().clone(),
             Token::Katakana(body) => body.body().clone(),
             Token::HalfKatakana(body) => body.body().clone(),
@@ -65,8 +71,10 @@ impl ToString for Token {
             Token::WideAlphabet(body) => body.body().clone(),
             Token::ZenkakuAlphabet(body) => body.body().clone(),
             Token::Digit { body, .. } => body.body().clone(),
-            Token::LinkAnnotation(body) => body.body().clone(),
-            Token::Annotation { marker, .. } => marker.to_string(),
+            Token::Annotation {
+                marker,
+                description,
+            } => format!("|{}${}$", marker.to_string(), description.to_string()),
             Token::Ignore(body) => body.body().clone(),
             Token::Punctuation(body) => body.body().clone(),
             Token::Other(body) => body.body().clone(),
