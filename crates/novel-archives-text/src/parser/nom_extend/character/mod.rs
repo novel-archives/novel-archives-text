@@ -1,7 +1,6 @@
 use super::*;
 pub mod complete;
 pub use nom::character::*;
-
 pub fn is_any_space(c: char) -> bool {
     c == ' ' || c == '\t' || c == '　'
 }
@@ -167,11 +166,7 @@ pub fn is_other_in_annotation_description(c: char) -> bool {
         || is_half_katakana(c)
         || is_punctuation(c)
         || is_any_newline(c)
-        || is_start_directive(c)
-        || is_start_annotation(c)
-        || is_start_ruby(c)
-        || is_end_annotation(c)
-        || is_end_ruby(c))
+        || is_start_directive(c))
 }
 
 pub fn is_other_in_text(c: char) -> bool {
@@ -184,11 +179,11 @@ pub fn is_other_in_text(c: char) -> bool {
         || is_wide_half_alphabetic(c)
         || is_half_katakana(c)
         || is_punctuation(c)
-        || is_start_directive(c)
-        || is_start_annotation(c)
-        || is_start_ruby(c)
-        || is_end_annotation(c)
-        || is_end_ruby(c))
+        || is_start_directive(c))
+}
+
+pub fn is_other_in_luff_text(c: char) -> bool {
+    !(is_kanji(c) || is_start_directive(c))
 }
 
 #[cfg(test)]
