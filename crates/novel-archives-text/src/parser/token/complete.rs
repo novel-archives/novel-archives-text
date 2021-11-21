@@ -52,15 +52,8 @@ pub fn katakana(input: ParsedSpan) -> IResult {
 }
 
 pub fn half_and_wide_disit(input: ParsedSpan) -> IResult {
-    half_and_wide_usize(input).map(|(input, (parsed, digit))| {
-        (
-            input,
-            ParsedToken::Digit {
-                body: parsed,
-                digit,
-            },
-        )
-    })
+    take_while1(character::is_wide_half_disit)(input)
+        .map(|(input, parsed)| (input, ParsedToken::Digit(parsed)))
 }
 
 pub fn alphabet(input: ParsedSpan) -> IResult {
@@ -196,11 +189,11 @@ mod tests {
         katakana(token::ParsedSpan::new(input))
     }
 
-    #[test_case("１３32"=> Ok((token::test_helper::new_test_result_span(8, 1, ""),ParsedToken::Digit{body:token::test_helper::new_test_result_span(0, 1, "１３32"),digit:1332})))]
-    #[test_case("１３32ほげ"=> Ok((token::test_helper::new_test_result_span(8, 1, "ほげ"),ParsedToken::Digit{body:token::test_helper::new_test_result_span(0, 1, "１３32"),digit:1332})))]
+    #[test_case("１３32"=> Ok((token::test_helper::new_test_result_span(8, 1, ""),ParsedToken::Digit(token::test_helper::new_test_result_span(0, 1, "１３32")))))]
+    #[test_case("１３32ほげ"=> Ok((token::test_helper::new_test_result_span(8, 1, "ほげ"),ParsedToken::Digit(token::test_helper::new_test_result_span(0, 1, "１３32")))))]
     #[test_case("ふが"=> Err(new_error(token::test_helper::new_test_result_span(0, 1, "ふが"),nom::error::ErrorKind::TakeWhile1)))]
     #[test_case("999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
-        => Err(new_error(token::test_helper::new_test_result_span(0, 1, "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"),nom::error::ErrorKind::Digit)))]
+        => Ok((token::test_helper::new_test_result_span(90, 1, ""),ParsedToken::Digit(token::test_helper::new_test_result_span(0, 1, "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999")))))]
     fn half_and_wide_disit_works(input: &str) -> IResult {
         half_and_wide_disit(token::ParsedSpan::new(input))
     }

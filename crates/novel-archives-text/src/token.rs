@@ -41,10 +41,7 @@ pub enum Token {
     HalfKatakana(Span),
     Alphabet(Span),
     WideAlphabet(Span),
-    Digit {
-        body: Span,
-        digit: usize,
-    },
+    Digit(Span),
     Annotation {
         marker: TokenText,
         description: TokenText,
@@ -68,7 +65,7 @@ impl ToString for Token {
             Token::HalfKatakana(body) => body.body().clone(),
             Token::Alphabet(body) => body.body().clone(),
             Token::WideAlphabet(body) => body.body().clone(),
-            Token::Digit { body, .. } => body.body().clone(),
+            Token::Digit(body) => body.body().clone(),
             Token::Annotation {
                 marker,
                 description,
@@ -108,7 +105,7 @@ mod test {
     #[test_case(Token::new_half_katakana(Span::new("ｱｲｳ".into(),Position::default()))=>"ｱｲｳ")]
     #[test_case(Token::new_alphabet(Span::new("abc".into(),Position::default()))=>"abc")]
     #[test_case(Token::new_wide_alphabet(Span::new("ｂｃｄ".into(),Position::default()))=>"ｂｃｄ")]
-    #[test_case(Token::new_digit(Span::new("3３".into(),Position::default()),33)=>"3３")]
+    #[test_case(Token::new_digit(Span::new("3３".into(),Position::default()))=>"3３")]
     #[test_case(Token::new_ignore(Span::new("|".into(),Position::default()))=>"|")]
     #[test_case(Token::new_punctuation(Span::new("。".into(),Position::default()))=>"。")]
     #[test_case(Token::new_other(Span::new("#".into(),Position::default()))=>"#")]

@@ -26,10 +26,7 @@ pub enum ParsedToken<'a> {
     HalfKatakana(ParsedSpan<'a>),
     Alphabet(ParsedSpan<'a>),
     WideAlphabet(ParsedSpan<'a>),
-    Digit {
-        body: ParsedSpan<'a>,
-        digit: usize,
-    },
+    Digit(ParsedSpan<'a>),
     Annotation {
         body: iterator::AnnotationBodyIterator<'a>,
         description: iterator::AnnotationDescriptionIterator<'a>,
@@ -67,7 +64,7 @@ impl<'a> From<ParsedToken<'a>> for crate::Token {
             ParsedToken::HalfKatakana(body) => Token::new_half_katakana(body.into()),
             ParsedToken::Alphabet(body) => Token::new_alphabet(body.into()),
             ParsedToken::WideAlphabet(body) => Token::new_wide_alphabet(body.into()),
-            ParsedToken::Digit { body, digit } => Token::new_digit(body.into(), digit),
+            ParsedToken::Digit(body) => Token::new_digit(body.into()),
             ParsedToken::Annotation { body, description } => {
                 Token::new_annotation(body.into(), description.into())
             }

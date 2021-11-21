@@ -178,7 +178,7 @@ mod tests {
             Token::new_spase(Span::new(" ".into(),Position::new(1,6))),
             Token::new_alphabet(Span::new("a".into(),Position::new(1,7))),
             Token::new_wide_alphabet(Span::new("ｋ".into(),Position::new(1,8))),
-            Token::new_digit(Span::new("3３".into(),Position::new(1,11)),33),
+            Token::new_digit(Span::new("3３".into(),Position::new(1,11))),
     ]))]
     #[test_case("缶じ *aｋ3３"=>TokenText::new(vec![
             Token::new_kanji(Span::new("缶".into(),Position::new(1,0))),
@@ -187,7 +187,7 @@ mod tests {
             Token::new_other(Span::new("*".into(),Position::new(1,7))),
             Token::new_alphabet(Span::new("a".into(),Position::new(1,8))),
             Token::new_wide_alphabet(Span::new("ｋ".into(),Position::new(1,9))),
-            Token::new_digit(Span::new("3３".into(),Position::new(1,12)),33),
+            Token::new_digit(Span::new("3３".into(),Position::new(1,12))),
     ]))]
     fn ruby_iterator_works(input: &str) -> TokenText {
         let ruby_iter = RubyIterator::new(token::ParsedSpan::new(input));
