@@ -183,7 +183,7 @@ pub fn is_other_in_text(c: char) -> bool {
 }
 
 pub fn is_other_in_luff_text(c: char) -> bool {
-    !(is_kanji(c) || is_start_directive(c))
+    !(is_kanji(c) || is_start_directive(c) || is_any_newline(c))
 }
 
 #[cfg(test)]

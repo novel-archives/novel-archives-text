@@ -159,6 +159,7 @@ impl<'a> Iterator for TextIterator<'a> {
             complete::wide_alphabet,
             complete::half_katakana,
             complete::punctuation,
+            complete::newline,
             complete::other_in_annotation_text,
         ))(self.input)
         .ok()?;
@@ -183,6 +184,7 @@ impl<'a> Iterator for LuffTextIterator<'a> {
             complete::kanji,
             complete::directive_ruby,
             complete::directive_other,
+            complete::newline,
             complete::other_in_luff_text,
         ))(self.input)
         .ok()?;
