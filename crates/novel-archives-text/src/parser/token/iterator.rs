@@ -16,7 +16,7 @@ impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
             complete::directive_ruby,
             complete::directive_other,
             complete::space,
-            complete::other_in_annotation_description,
+            complete::plaintext,
         ))(self.description)
         .ok()?;
         self.description = description;
@@ -47,7 +47,7 @@ impl<'a> Iterator for TextIterator<'a> {
             complete::directive_other,
             complete::space,
             complete::newline,
-            complete::other_in_annotation_text,
+            complete::plaintext,
         ))(self.input)
         .ok()?;
         self.input = input;

@@ -116,56 +116,8 @@ pub fn is_able_to_annotation(c: char) -> bool {
     !(is_any_newline(c) || is_end_annotation(c))
 }
 
-pub fn is_other_in_ruby(c: char) -> bool {
-    !is_any_space(c)
-}
-
-pub fn is_other_in_ruby_body(c: char) -> bool {
-    !is_any_space(c)
-}
-
-pub fn is_other_in_annotation_body(c: char) -> bool {
-    !(is_wide_half_alphabetic(c)
-        || is_wide_half_disit(c)
-        || is_hiragana(c)
-        || is_kanji(c)
-        || is_any_space(c)
-        || is_katakana(c)
-        || is_wide_half_alphabetic(c)
-        || is_half_katakana(c)
-        || is_punctuation(c)
-        || is_any_newline(c))
-}
-
-pub fn is_other_in_annotation_description(c: char) -> bool {
-    !(is_wide_half_alphabetic(c)
-        || is_wide_half_disit(c)
-        || is_hiragana(c)
-        || is_kanji(c)
-        || is_any_space(c)
-        || is_katakana(c)
-        || is_wide_half_alphabetic(c)
-        || is_half_katakana(c)
-        || is_punctuation(c)
-        || is_any_newline(c)
-        || is_start_directive(c))
-}
-
-pub fn is_other_in_text(c: char) -> bool {
-    !(is_wide_half_alphabetic(c)
-        || is_wide_half_disit(c)
-        || is_hiragana(c)
-        || is_kanji(c)
-        || is_any_space(c)
-        || is_katakana(c)
-        || is_wide_half_alphabetic(c)
-        || is_half_katakana(c)
-        || is_punctuation(c)
-        || is_start_directive(c))
-}
-
-pub fn is_other_in_luff_text(c: char) -> bool {
-    !(is_kanji(c) || is_start_directive(c) || is_any_newline(c))
+pub fn is_plaintext(c: char) -> bool {
+    !(is_start_directive(c) || is_any_space(c) || is_any_newline(c) || is_kanji(c))
 }
 
 #[cfg(test)]

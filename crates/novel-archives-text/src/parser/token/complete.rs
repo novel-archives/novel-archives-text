@@ -40,33 +40,8 @@ pub fn space(input: ParsedSpan) -> IResult {
     complete::any_space1(input).map(|(input, parsed)| (input, ParsedToken::Space(parsed)))
 }
 
-pub fn other_in_ruby(input: ParsedSpan) -> IResult {
-    take_while1(character::is_other_in_ruby)(input)
-        .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
-}
-
-pub fn other_in_ruby_body(input: ParsedSpan) -> IResult {
-    take_while1(character::is_other_in_ruby_body)(input)
-        .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
-}
-
-pub fn other_in_annotation_body(input: ParsedSpan) -> IResult {
-    take_while1(character::is_other_in_annotation_body)(input)
-        .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
-}
-
-pub fn other_in_annotation_description(input: ParsedSpan) -> IResult {
-    take_while1(character::is_other_in_annotation_description)(input)
-        .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
-}
-
-pub fn other_in_annotation_text(input: ParsedSpan) -> IResult {
-    take_while1(character::is_other_in_text)(input)
-        .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
-}
-
-pub fn other_in_luff_text(input: ParsedSpan) -> IResult {
-    take_while1(character::is_other_in_luff_text)(input)
+pub fn plaintext(input: ParsedSpan) -> IResult {
+    take_while1(character::is_plaintext)(input)
         .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
 }
 
