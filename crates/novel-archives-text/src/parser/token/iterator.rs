@@ -13,7 +13,6 @@ impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
         let (description, parsed) = alt((
             |input| self.context.term(input),
             complete::kanji_ruby,
-            complete::kanji,
             complete::directive_ruby,
             complete::directive_other,
             complete::space,
@@ -44,7 +43,6 @@ impl<'a> Iterator for TextIterator<'a> {
             |input| self.context.term(input),
             |input| self.context.directive_annotation(input),
             complete::kanji_ruby,
-            complete::kanji,
             complete::directive_ruby,
             complete::directive_other,
             complete::space,
