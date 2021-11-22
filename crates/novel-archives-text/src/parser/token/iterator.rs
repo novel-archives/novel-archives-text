@@ -4,7 +4,7 @@ use nom::branch::alt;
 #[derive(new, Debug, PartialEq)]
 pub struct AnnotationDescriptionIterator<'a> {
     description: ParsedSpan<'a>,
-    context: Context,
+    context: ParseContext,
 }
 
 impl<'a> Iterator for AnnotationDescriptionIterator<'a> {
@@ -33,7 +33,7 @@ impl<'a> From<AnnotationDescriptionIterator<'a>> for TokenText {
 #[derive(new, Debug, PartialEq)]
 pub struct TextIterator<'a> {
     input: ParsedSpan<'a>,
-    context: Context,
+    context: ParseContext,
 }
 
 impl<'a> Iterator for TextIterator<'a> {

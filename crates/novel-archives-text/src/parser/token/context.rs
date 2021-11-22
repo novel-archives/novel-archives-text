@@ -7,7 +7,7 @@ use super::*;
 use nom::InputTake;
 
 #[derive(Debug, PartialEq, Clone, new)]
-pub struct Context {
+pub struct ParseContext {
     term_map: Arc<TermMap>,
 }
 
@@ -17,7 +17,7 @@ pub struct TermKv {
     term: Arc<term::Term>,
 }
 
-impl Context {
+impl ParseContext {
     pub fn term<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
         let fragment = input.fragment();
         let term_map = &self.term_map.0;
@@ -157,12 +157,12 @@ mod tests {
         }))
     )]
     fn context_term_works(term_map: TermMap, input: &str) -> IResult {
-        let ctx = Context::new(Arc::new(term_map));
+        let ctx = ParseContext::new(Arc::new(term_map));
         ctx.term(token::ParsedSpan::new(input))
     }
 
-    fn default_ctx() -> Context {
-        Context::new(Arc::new(TermMap::new(&[])))
+    fn default_ctx() -> ParseContext {
+        ParseContext::new(Arc::new(TermMap::new(&[])))
     }
 
     #[test_case("|漢字$かんじ$"=> Ok((token::test_helper::new_test_result_span(18, 1, ""),
