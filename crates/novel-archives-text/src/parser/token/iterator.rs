@@ -57,30 +57,5 @@ impl<'a> Iterator for TextIterator<'a> {
     }
 }
 
-#[derive(new, Debug, PartialEq)]
-pub struct LuffTextIterator<'a> {
-    input: ParsedSpan<'a>,
-    context: Context,
-}
-
-impl<'a> Iterator for LuffTextIterator<'a> {
-    type Item = ParsedToken<'a>;
-    fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
-        let (input, parsed) = alt((
-            |input| self.context.term(input),
-            |input| self.context.directive_annotation(input),
-            complete::kanji_ruby,
-            complete::kanji,
-            complete::directive_ruby,
-            complete::directive_other,
-            complete::newline,
-            complete::other_in_luff_text,
-        ))(self.input)
-        .ok()?;
-        self.input = input;
-        Some(parsed)
-    }
-}
-
 #[cfg(test)]
 mod tests {}
