@@ -21,7 +21,7 @@ pub enum ParsedToken<'a> {
     },
     Annotation {
         body: ParsedSpan<'a>,
-        description: iterator::AnnotationDescriptionIterator<'a>,
+        description: iterator::TextIterator<'a>,
     },
     Space(ParsedSpan<'a>),
     Ignore(ParsedSpan<'a>),
