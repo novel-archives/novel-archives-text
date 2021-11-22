@@ -12,28 +12,20 @@ pub enum ParsedToken<'a> {
         term: Arc<term::Term>,
     },
     Ruby {
-        body: iterator::RubyBodyIterator<'a>,
-        ruby: iterator::RubyIterator<'a>,
+        body: ParsedSpan<'a>,
+        ruby: ParsedSpan<'a>,
     },
     KanjiRuby {
         body: ParsedSpan<'a>,
-        ruby: iterator::RubyIterator<'a>,
+        ruby: ParsedSpan<'a>,
     },
-    Space(ParsedSpan<'a>),
-    Kanji(ParsedSpan<'a>),
-    Hiragana(ParsedSpan<'a>),
-    Katakana(ParsedSpan<'a>),
-    HalfKatakana(ParsedSpan<'a>),
-    Alphabet(ParsedSpan<'a>),
-    WideAlphabet(ParsedSpan<'a>),
-    Digit(ParsedSpan<'a>),
     Annotation {
-        body: iterator::AnnotationBodyIterator<'a>,
+        body: ParsedSpan<'a>,
         description: iterator::AnnotationDescriptionIterator<'a>,
     },
+    Space(ParsedSpan<'a>),
     Ignore(ParsedSpan<'a>),
-    Punctuation(ParsedSpan<'a>),
-    Other(ParsedSpan<'a>),
+    Plaintext(ParsedSpan<'a>),
     NewLine(ParsedSpan<'a>),
 }
 
@@ -58,19 +50,11 @@ impl<'a> From<ParsedToken<'a>> for crate::Token {
                 Token::new_kanji_ruby(body.into(), ruby.into())
             }
             ParsedToken::Space(body) => Token::new_spase(body.into()),
-            ParsedToken::Kanji(body) => Token::new_kanji(body.into()),
-            ParsedToken::Hiragana(body) => Token::new_hiragana(body.into()),
-            ParsedToken::Katakana(body) => Token::new_katakana(body.into()),
-            ParsedToken::HalfKatakana(body) => Token::new_half_katakana(body.into()),
-            ParsedToken::Alphabet(body) => Token::new_alphabet(body.into()),
-            ParsedToken::WideAlphabet(body) => Token::new_wide_alphabet(body.into()),
-            ParsedToken::Digit(body) => Token::new_digit(body.into()),
             ParsedToken::Annotation { body, description } => {
                 Token::new_annotation(body.into(), description.into())
             }
             ParsedToken::Ignore(body) => Token::new_ignore(body.into()),
-            ParsedToken::Punctuation(body) => Token::new_punctuation(body.into()),
-            ParsedToken::Other(body) => Token::new_other(body.into()),
+            ParsedToken::Plaintext(body) => Token::new_plaintext(body.into()),
             ParsedToken::NewLine(body) => Token::NewLine(body.into()),
         }
     }

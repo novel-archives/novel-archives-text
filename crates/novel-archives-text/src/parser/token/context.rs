@@ -63,7 +63,7 @@ impl Context {
             (
                 input,
                 ParsedToken::Annotation {
-                    body: iterator::AnnotationBodyIterator::new(body),
+                    body,
                     description: iterator::AnnotationDescriptionIterator::new(
                         description,
                         self.clone(),
@@ -113,14 +113,8 @@ mod tests {
     fn new_sample_term(text: &str) -> term::Term {
         term::Term::new(
             Id::new("term_id1".into()),
-            TokenText::new(vec![Token::new_kanji(Span::new(
-                text.into(),
-                Position::new(0, 0),
-            ))]),
-            TokenText::new(vec![Token::new_hiragana(Span::new(
-                "む".into(),
-                Position::new(0, 0),
-            ))]),
+            text.into(),
+            "む".into(),
             TokenText::new(vec![]),
         )
     }
@@ -173,22 +167,22 @@ mod tests {
 
     #[test_case("|漢字$かんじ$"=> Ok((token::test_helper::new_test_result_span(18, 1, ""),
     ParsedToken::Annotation{
-        body: iterator::AnnotationBodyIterator::new(token::test_helper::new_test_result_span(1, 1, "漢字")),
+        body: token::test_helper::new_test_result_span(1, 1, "漢字"),
         description: iterator::AnnotationDescriptionIterator::new(token::test_helper::new_test_result_span(8, 1, "かんじ"),default_ctx()),
     }));"half_all")]
     #[test_case("|漢字(かんじ)$せつめい$"=> Ok((token::test_helper::new_test_result_span(32, 1, ""),
     ParsedToken::Annotation{
-        body: iterator::AnnotationBodyIterator::new(token::test_helper::new_test_result_span(1, 1, "漢字(かんじ)")),
+        body: token::test_helper::new_test_result_span(1, 1, "漢字(かんじ)"),
         description: iterator::AnnotationDescriptionIterator::new(token::test_helper::new_test_result_span(19, 1, "せつめい"),default_ctx()),
     }));"with_ruby")]
     #[test_case("||漢字ふ(かんじ)$せつめい$"=> Ok((token::test_helper::new_test_result_span(36, 1, ""),
     ParsedToken::Annotation{
-        body: iterator::AnnotationBodyIterator::new(token::test_helper::new_test_result_span(1, 1, "|漢字ふ(かんじ)")),
+        body: token::test_helper::new_test_result_span(1, 1, "|漢字ふ(かんじ)"),
         description: iterator::AnnotationDescriptionIterator::new(token::test_helper::new_test_result_span(23, 1, "せつめい"),default_ctx()),
     }));"with_ruby_directive")]
     #[test_case("|漢字＄かんじ$"=> Ok((token::test_helper::new_test_result_span(20, 1, ""),
     ParsedToken::Annotation{
-        body: iterator::AnnotationBodyIterator::new(token::test_helper::new_test_result_span(1, 1, "漢字")),
+        body: token::test_helper::new_test_result_span(1, 1, "漢字"),
         description: iterator::AnnotationDescriptionIterator::new(token::test_helper::new_test_result_span(10, 1, "かんじ"),default_ctx()),
     }));"wide_start")]
     #[test_case("|$hoge$"=> Err(new_error(token::test_helper::new_test_result_span(1, 1, "$hoge$"),nom::error::ErrorKind::TakeWhile1)))]
