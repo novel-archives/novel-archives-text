@@ -13,27 +13,21 @@ pub struct ParseContext {
     term_map: Arc<TermMap>,
 }
 
-#[derive(Debug, PartialEq, Clone, new, Getters)]
-pub struct TermKv {
-    key: String,
-    term: Arc<term::Term>,
-}
-
 impl ParseContext {
-    fn term<'a>(&self, input: ParsedSpan<'a>, terms: &[TermKv]) -> IResult<'a> {
+    fn term<'a>(&self, input: ParsedSpan<'a>, terms: &[term::Term]) -> IResult<'a> {
         let fragment = input.fragment();
         let term = terms
             .iter()
-            .find(|term| term.key().len() <= fragment.len() && fragment.starts_with(term.key()))
+            .find(|term| term.body().len() <= fragment.len() && fragment.starts_with(term.body()))
             .ok_or_else(|| new_error(input, nom::error::ErrorKind::TakeTill1))?;
 
-        let (input, body) = input.take_split(term.key().len());
+        let (input, body) = input.take_split(term.body().len());
 
         Ok((
             input,
             ParsedToken::Term {
                 body,
-                term: term.term().clone(),
+                term_id: term.id().clone(),
             },
         ))
     }
@@ -96,31 +90,27 @@ impl ParseContext {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct TermMap(Vec<(char, Vec<TermKv>)>);
+pub struct TermMap(Vec<(char, Vec<term::Term>)>);
 
 impl TermMap {
-    pub fn new(terms: &[term::Term]) -> Self {
-        let term_kvs: Vec<_> = terms
-            .iter()
-            .map(|t| TermKv::new(t.body().to_string(), Arc::new(t.clone())))
-            .collect();
-        let mut term_map = Self(Vec::with_capacity(term_kvs.len()));
+    pub fn new(terms: Vec<term::Term>) -> Self {
+        let mut term_map = Self(Vec::with_capacity(terms.len()));
 
-        for term_kv in term_kvs.iter() {
-            let ck = term_kv.key().chars().next().unwrap();
+        for term in terms.iter() {
+            let ck = term.body().chars().next().unwrap();
             match term_map.0.binary_search_by_key(&ck, |(k, _)| *k) {
                 Ok(i) => {
                     let (_, terms) = term_map.0.get_mut(i).unwrap();
-                    terms.push(term_kv.clone());
+                    terms.push(term.clone());
                 }
                 Err(_) => {
-                    term_map.0.push((ck, vec![term_kv.clone()]));
+                    term_map.0.push((ck, vec![term.clone()]));
                     term_map.0.sort_by_key(|(k, _)| *k);
                 }
             }
         }
         for (_, terms) in term_map.0.iter_mut() {
-            terms.sort_by_key(|kv| Reverse(without_variation_selector_count(kv.key())));
+            terms.sort_by_key(|kv| Reverse(without_variation_selector_count(kv.body())));
         }
         term_map
     }
@@ -131,60 +121,59 @@ mod tests {
     use super::*;
     use test_case::test_case;
 
-    fn new_sample_term(text: &str) -> term::Term {
+    fn new_sample_term(id: &str, text: &str) -> term::Term {
         term::Term::new(
-            Id::new("term_id1".into()),
+            Id::new(id.into()),
             text.into(),
             "む".into(),
             TokenText::new(vec![]),
         )
     }
     #[test_case(vec![
-        TermKv::new("無".into(),Arc::new(new_sample_term("無"))),
+        new_sample_term("term_id1", "無"),
     ],"無"
         =>Ok((token::test_helper::new_test_result_span(3, 1, ""),
         ParsedToken::Term{
             body:token::test_helper::new_test_result_span(0, 1, "無"),
-            term:Arc::new(new_sample_term("無")),
+            term_id:Id::new("term_id1".into()),
         }))
     )]
     #[test_case(vec![
-            TermKv::new("穂積".into(),Arc::new(new_sample_term("穂積"))),
-
+            new_sample_term("term_id1","穂積"),
     ],"穂積しょう"
         =>Ok((token::test_helper::new_test_result_span(6, 1, "しょう"),
         ParsedToken::Term{
             body:token::test_helper::new_test_result_span(0, 1, "穂積"),
-            term:Arc::new(new_sample_term("穂積")),
+            term_id:Id::new("term_id1".into()),
         }))
     )]
     #[test_case(vec![
-            TermKv::new("穂積".into(),Arc::new(new_sample_term("穂積"))),
+            new_sample_term("term_id1","穂積"),
     ],"しょう"
         =>Err(new_error(token::test_helper::new_test_result_span(0, 1, "しょう"),nom::error::ErrorKind::TakeTill1))
     )]
     #[test_case(vec![
-            TermKv::new("穂積".into(),Arc::new(new_sample_term("穂積"))),
+            new_sample_term("term_id1","穂積"),
     ],"穂"
         =>Err(new_error(token::test_helper::new_test_result_span(0, 1, "穂"),nom::error::ErrorKind::TakeTill1))
     )]
     #[test_case(vec![
-            TermKv::new("穂積しょう".into(),Arc::new(new_sample_term("穂積しょう"))),
-            TermKv::new("穂積".into(),Arc::new(new_sample_term("穂積"))),
+            new_sample_term("term_id1","穂積しょう"),
+            new_sample_term("term_id2","穂積"),
     ],"穂積しょう"
         =>Ok((token::test_helper::new_test_result_span(15, 1, ""),
         ParsedToken::Term{
             body:token::test_helper::new_test_result_span(0, 1, "穂積しょう"),
-            term:Arc::new(new_sample_term("穂積しょう")),
+            term_id:Id::new("term_id1".into()),
         }))
     )]
-    fn context_term_works(terms: Vec<TermKv>, input: &str) -> IResult {
-        let ctx = ParseContext::new(Arc::new(TermMap::new(&[])));
+    fn context_term_works(terms: Vec<term::Term>, input: &str) -> IResult {
+        let ctx = ParseContext::new(Arc::new(TermMap::new(vec![])));
         ctx.term(token::ParsedSpan::new(input), &terms)
     }
 
     fn default_ctx() -> ParseContext {
-        ParseContext::new(Arc::new(TermMap::new(&[])))
+        ParseContext::new(Arc::new(TermMap::new(vec![])))
     }
 
     #[test_case("|漢字$かんじ$"=> Ok((token::test_helper::new_test_result_span(18, 1, ""),

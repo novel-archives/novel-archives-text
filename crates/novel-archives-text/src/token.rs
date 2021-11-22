@@ -1,4 +1,5 @@
 use crate::term::Term;
+use crate::Id;
 use std::{fmt::Write, ops::Deref};
 #[derive(Debug, PartialEq, Clone, new)]
 pub struct TokenText(Vec<Token>);
@@ -22,7 +23,7 @@ impl Deref for TokenText {
 
 #[derive(Debug, PartialEq, Clone, new)]
 pub enum Token {
-    Term { body: Span, term: Term },
+    Term { body: Span, term_id: Id<Term> },
     Ruby { body: Span, ruby: Span },
     KanjiRuby { body: Span, ruby: Span },
     Annotation { body: Span, description: TokenText },

@@ -9,7 +9,7 @@ mod span;
 pub enum ParsedToken<'a> {
     Term {
         body: ParsedSpan<'a>,
-        term: Arc<term::Term>,
+        term_id: Id<term::Term>,
     },
     Ruby {
         body: ParsedSpan<'a>,
@@ -44,7 +44,7 @@ fn without_variation_selector_count(input: &str) -> usize {
 impl<'a> From<ParsedToken<'a>> for crate::Token {
     fn from(token: ParsedToken<'a>) -> Self {
         match token {
-            ParsedToken::Term { body, term } => Token::new_term(body.into(), term.as_ref().clone()),
+            ParsedToken::Term { body, term_id } => Token::new_term(body.into(), term_id),
             ParsedToken::Ruby { body, ruby } => Token::new_ruby(body.into(), ruby.into()),
             ParsedToken::KanjiRuby { body, ruby } => {
                 Token::new_kanji_ruby(body.into(), ruby.into())
