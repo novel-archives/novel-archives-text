@@ -61,10 +61,8 @@ impl ParseContext {
             return Ok((input, token));
         }
 
-        take_while_m_n(1, 1, move |c| {
-            character::is_plaintext(c) || (found_key && c == first)
-        })(input)
-        .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
+        take_while_m_n(1, 1, move |c| character::is_plaintext(c) || found_key)(input)
+            .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
     }
 
     pub fn directive_annotation<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
