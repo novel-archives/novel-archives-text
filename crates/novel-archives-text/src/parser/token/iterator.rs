@@ -1,4 +1,5 @@
 use super::*;
+use nom::branch::alt;
 use std::iter::FromIterator;
 
 #[derive(new, Debug, PartialEq)]
@@ -10,7 +11,17 @@ pub struct TextIterator<'a> {
 impl<'a> Iterator for TextIterator<'a> {
     type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
-        let (input, parsed) = self.context.token(self.input).ok()?;
+        let (input, parsed) = alt((
+            |input| self.context.term(input),
+            |input| self.context.directive_annotation(input),
+            complete::kanji_ruby,
+            complete::directive_ruby,
+            complete::directive_other,
+            complete::term_directive_other,
+            complete::space,
+            complete::newline,
+        ))(self.input)
+        .ok()?;
         self.input = input;
         Some(parsed)
     }

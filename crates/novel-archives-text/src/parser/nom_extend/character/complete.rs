@@ -61,6 +61,10 @@ pub fn able_to_ruby(input: token::ParsedSpan) -> NomIResult {
     take_while1(complete::is_able_to_ruby)(input)
 }
 
+pub fn able_to_term(input: token::ParsedSpan) -> NomIResult {
+    take_while1(complete::is_able_to_term)(input)
+}
+
 pub fn able_to_ruby_body1(input: token::ParsedSpan) -> NomIResult {
     take_while1(complete::is_able_to_ruby_body)(input)
 }

@@ -1,37 +1,37 @@
-use super::complete as parse_complete;
-use nom::branch::alt;
 use nom::bytes::complete::{take_while1, take_while_m_n};
 use nom::sequence::{delimited, tuple};
 use nom_extend::character::complete;
 use std::cmp::Reverse;
+use std::collections::HashMap;
 
 use super::*;
-use nom::InputTake;
 
 #[derive(Debug, PartialEq, Clone, new)]
 pub struct ParseContext {
-    term_map: Arc<TermMap>,
+    term_map: Arc<HashMap<String, term::Term>>,
 }
 
 impl ParseContext {
-    fn term<'a>(&self, input: ParsedSpan<'a>, terms: &[term::Term]) -> IResult<'a> {
-        let fragment = input.fragment();
-        let term = terms
-            .iter()
-            .find(|term| term.body().len() <= fragment.len() && fragment.starts_with(term.body()))
+    pub fn term<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
+        let (input, parsed) = delimited(
+            take_while_m_n(1, 1, character::is_start_term),
+            complete::able_to_term,
+            take_while_m_n(1, 1, character::is_end_term),
+        )(input)?;
+        let term = self
+            .term_map
+            .get(*parsed.fragment())
             .ok_or_else(|| new_error(input, nom::error::ErrorKind::TakeTill1))?;
-
-        let (input, body) = input.take_split(term.body().len());
-
         Ok((
             input,
             ParsedToken::Term {
-                body,
+                body: parsed,
                 term_id: term.id().clone(),
             },
         ))
     }
 
+    /*
     pub fn token<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
         let fragment = input.fragment();
         let term_map = &self.term_map.0;
@@ -64,6 +64,7 @@ impl ParseContext {
         take_while_m_n(1, 1, move |c| character::is_plaintext(c) || found_key)(input)
             .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
     }
+    */
 
     pub fn directive_annotation<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
         tuple((
@@ -130,46 +131,54 @@ mod tests {
     #[test_case(vec![
         new_sample_term("term_id1", "無"),
     ],"無"
-        =>Ok((token::test_helper::new_test_result_span(3, 1, ""),
-        ParsedToken::Term{
-            body:token::test_helper::new_test_result_span(0, 1, "無"),
-            term_id:Id::new("term_id1".into()),
-        }))
+        =>Err(new_error(token::test_helper::new_test_result_span(0, 1, "無"),nom::error::ErrorKind::TakeWhileMN))
     )]
     #[test_case(vec![
+        new_sample_term("term_id1", "無"),
+    ],"\"無\""
+        => Ok((token::test_helper::new_test_result_span(5, 1, ""),ParsedToken::Term{
+        body: token::test_helper::new_test_result_span(1, 1, "無"),
+        term_id:Id::new("term_id1".into()),
+        }))
+    ;"quote無")]
+    #[test_case(vec![
             new_sample_term("term_id1","穂積"),
-    ],"穂積しょう"
-        =>Ok((token::test_helper::new_test_result_span(6, 1, "しょう"),
-        ParsedToken::Term{
-            body:token::test_helper::new_test_result_span(0, 1, "穂積"),
-            term_id:Id::new("term_id1".into()),
+    ],"\"穂積\"しょう"
+        => Ok((token::test_helper::new_test_result_span(8, 1, "しょう"),ParsedToken::Term{
+        body: token::test_helper::new_test_result_span(1, 1, "穂積"),
+        term_id:Id::new("term_id1".into()),
         }))
     )]
     #[test_case(vec![
             new_sample_term("term_id1","穂積"),
     ],"しょう"
-        =>Err(new_error(token::test_helper::new_test_result_span(0, 1, "しょう"),nom::error::ErrorKind::TakeTill1))
+        =>Err(new_error(token::test_helper::new_test_result_span(0, 1, "しょう"),nom::error::ErrorKind::TakeWhileMN))
     )]
     #[test_case(vec![
             new_sample_term("term_id1","穂積"),
     ],"穂"
-        =>Err(new_error(token::test_helper::new_test_result_span(0, 1, "穂"),nom::error::ErrorKind::TakeTill1))
+        =>Err(new_error(token::test_helper::new_test_result_span(0, 1, "穂"),nom::error::ErrorKind::TakeWhileMN))
     )]
     #[test_case(vec![
             new_sample_term("term_id1","穂積しょう"),
             new_sample_term("term_id2","穂積"),
-    ],"穂積しょう"
-        =>Ok((token::test_helper::new_test_result_span(15, 1, ""),
-        ParsedToken::Term{
-            body:token::test_helper::new_test_result_span(0, 1, "穂積しょう"),
-            term_id:Id::new("term_id1".into()),
+    ],"\"穂積しょう\""
+        => Ok((token::test_helper::new_test_result_span(17, 1, ""),ParsedToken::Term{
+        body: token::test_helper::new_test_result_span(1, 1, "穂積しょう"),
+        term_id:Id::new("term_id1".into()),
         }))
     )]
     fn context_term_works(terms: Vec<term::Term>, input: &str) -> IResult {
-        let ctx = ParseContext::new(Arc::new(TermMap::new(vec![])));
-        ctx.term(token::ParsedSpan::new(input), &terms)
+        let ctx = ParseContext::new(Arc::new(
+            terms
+                .into_iter()
+                .map(|term| (term.body().clone(), term))
+                .collect(),
+        ));
+        ctx.term(token::ParsedSpan::new(input))
     }
 
+    /*
     #[cfg(test)]
     mod token_works_testdata {
         use super::*;
@@ -255,9 +264,10 @@ mod tests {
         let ctx = ParseContext::new(Arc::new(TermMap::new(terms)));
         ctx.token(token::ParsedSpan::new(input))
     }
+    */
 
     fn default_ctx() -> ParseContext {
-        ParseContext::new(Arc::new(TermMap::new(vec![])))
+        ParseContext::new(Arc::new(HashMap::new()))
     }
 
     #[test_case("|漢字$かんじ$"=> Ok((token::test_helper::new_test_result_span(18, 1, ""),

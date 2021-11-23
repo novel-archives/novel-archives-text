@@ -24,6 +24,14 @@ pub fn is_end_ruby(c: char) -> bool {
     c == '》' || c == '⟫' || c == ')' || c == '）'
 }
 
+pub fn is_start_term(c: char) -> bool {
+    c == '"' || c == '”'
+}
+
+pub fn is_end_term(c: char) -> bool {
+    c == '"' || c == '”'
+}
+
 pub fn is_kanji_related(c: char) -> bool {
     is_kanji(c) || is_kanji_extend(c) || is_kanji_variation_selector(c)
 }
@@ -93,6 +101,10 @@ pub fn is_able_to_ruby(c: char) -> bool {
 
 pub fn is_able_to_ruby_body(c: char) -> bool {
     !(is_any_newline(c) || is_start_ruby(c))
+}
+
+pub fn is_able_to_term(c: char) -> bool {
+    !(is_any_newline(c) || is_end_term(c))
 }
 
 pub fn is_any_newline(c: char) -> bool {

@@ -74,6 +74,11 @@ pub fn directive_other(input: ParsedSpan) -> IResult {
         .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
 }
 
+pub fn term_directive_other(input: ParsedSpan) -> IResult {
+    take_while_m_n(1, 1, character::is_start_term)(input)
+        .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
