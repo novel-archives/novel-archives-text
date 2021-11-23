@@ -170,12 +170,22 @@ mod tests {
         ctx.term(token::ParsedSpan::new(input), &terms)
     }
 
+    #[cfg(test)]
     mod token_works_testdata {
         use super::*;
         pub fn hit_terms() -> Vec<term::Term> {
             vec![term::Term::new(
                 Id::new("term_id1".into()),
                 "穂積しょう".into(),
+                "".into(),
+                TokenText::new(vec![]),
+            )]
+        }
+
+        pub fn other_terms() -> Vec<term::Term> {
+            vec![term::Term::new(
+                Id::new("term_id1".into()),
+                "その他用語".into(),
                 "".into(),
                 TokenText::new(vec![]),
             )]
@@ -195,6 +205,10 @@ mod tests {
                     body: token::test_helper::new_test_result_span(0, 1, "穂積しょう"),
                     term_id: Id::new("term_id1".into()),
                 },
+            )))]
+    #[test_case(token_works_testdata::other_terms(),"穂積しょうたろう" => Ok((
+                token::test_helper::new_test_result_span(6, 1, "しょうたろう"),
+                ParsedToken::Plaintext(token::test_helper::new_test_result_span(0, 1, "穂積")),
             )))]
     fn context_token_works(terms: Vec<term::Term>, input: &str) -> IResult {
         let ctx = ParseContext::new(Arc::new(TermMap::new(terms)));
