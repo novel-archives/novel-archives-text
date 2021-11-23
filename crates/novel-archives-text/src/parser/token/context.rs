@@ -210,6 +210,13 @@ mod tests {
                 token::test_helper::new_test_result_span(6, 1, "しょうたろう"),
                 ParsedToken::Plaintext(token::test_helper::new_test_result_span(0, 1, "穂積")),
             )))]
+    #[test_case(token_works_testdata::other_terms(),"|穂積《ほづみ》しょうたろう" => Ok((
+                token::test_helper::new_test_result_span(22, 1, "しょうたろう"),
+                ParsedToken::Ruby{
+                    body:token::test_helper::new_test_result_span(1, 1, "穂積"),
+                    ruby:token::test_helper::new_test_result_span(10, 1, "ほづみ"),
+                }
+            )))]
     fn context_token_works(terms: Vec<term::Term>, input: &str) -> IResult {
         let ctx = ParseContext::new(Arc::new(TermMap::new(terms)));
         ctx.token(token::ParsedSpan::new(input))
