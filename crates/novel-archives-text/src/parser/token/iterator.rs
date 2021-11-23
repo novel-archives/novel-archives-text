@@ -1,4 +1,5 @@
 use super::*;
+use std::iter::FromIterator;
 
 #[derive(new, Debug, PartialEq)]
 pub struct TextIterator<'a> {
@@ -15,8 +16,8 @@ impl<'a> Iterator for TextIterator<'a> {
     }
 }
 
-impl<'a> From<TextIterator<'a>> for TokenText {
-    fn from(iter: TextIterator<'a>) -> Self {
+impl<'a> FromIterator<ParsedToken<'a>> for TokenText {
+    fn from_iter<I: IntoIterator<Item = ParsedToken<'a>>>(iter: I) -> Self {
         struct PlainSpanHolder {
             body: String,
             position: Position,

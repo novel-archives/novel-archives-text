@@ -51,7 +51,7 @@ impl<'a> From<ParsedToken<'a>> for crate::Token {
             }
             ParsedToken::Space(body) => Token::new_spase(body.into()),
             ParsedToken::Annotation { body, description } => {
-                Token::new_annotation(body.into(), description.into())
+                Token::new_annotation(body.into(), description.collect())
             }
             ParsedToken::Ignore(body) => Token::new_ignore(body.into()),
             ParsedToken::Plaintext(body) => Token::new_plaintext(body.into()),
