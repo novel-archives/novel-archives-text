@@ -41,8 +41,7 @@ impl<'a> FromIterator<ParsedToken<'a>> for TokenText {
                     plain_span = Some(old_plain_span);
                 }
                 _ => {
-                    if plain_span.is_some() {
-                        let span = plain_span.unwrap();
+                    if let Some(span) = plain_span {
                         tokens.push(Token::Plaintext(Span::new(span.body, span.position)));
                         plain_span = None;
                     }
