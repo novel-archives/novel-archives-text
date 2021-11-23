@@ -190,6 +190,15 @@ mod tests {
                 TokenText::new(vec![]),
             )]
         }
+
+        pub fn fire_terms() -> Vec<term::Term> {
+            vec![term::Term::new(
+                Id::new("term_id1".into()),
+                "\"炎\"".into(),
+                "".into(),
+                TokenText::new(vec![]),
+            )]
+        }
     }
 
     #[test_case(token_works_testdata::hit_terms(),"穂積しょう" => Ok((
@@ -210,27 +219,38 @@ mod tests {
                 token::test_helper::new_test_result_span(6, 1, "しょうたろう"),
                 ParsedToken::Plaintext(token::test_helper::new_test_result_span(0, 1, "穂積")),
             )))]
-    #[test_case(token_works_testdata::other_terms(),"|穂積《ほづみ》しょうたろう" => Ok((
+    #[test_case(token_works_testdata::hit_terms(),"|穂積《ほづみ》しょうたろう" => Ok((
                 token::test_helper::new_test_result_span(22, 1, "しょうたろう"),
                 ParsedToken::Ruby{
                     body:token::test_helper::new_test_result_span(1, 1, "穂積"),
                     ruby:token::test_helper::new_test_result_span(10, 1, "ほづみ"),
                 }
             )))]
-    #[test_case(token_works_testdata::other_terms(),"穂積《ほづみ》しょうたろう" => Ok((
+    #[test_case(token_works_testdata::hit_terms(),"穂積《ほづみ》しょうたろう" => Ok((
                 token::test_helper::new_test_result_span(21, 1, "しょうたろう"),
                 ParsedToken::KanjiRuby{
                     body:token::test_helper::new_test_result_span(0, 1, "穂積"),
                     ruby:token::test_helper::new_test_result_span(9, 1, "ほづみ"),
                 }
             ));"kanji_ruby1")]
-    #[test_case(token_works_testdata::other_terms(),"穂積(ほづみ)しょうたろう" => Ok((
+    #[test_case(token_works_testdata::hit_terms(),"穂積(ほづみ)しょうたろう" => Ok((
                 token::test_helper::new_test_result_span(17, 1, "しょうたろう"),
                 ParsedToken::KanjiRuby{
                     body:token::test_helper::new_test_result_span(0, 1, "穂積"),
                     ruby:token::test_helper::new_test_result_span(7, 1, "ほづみ"),
                 }
             ));"kanji_ruby2")]
+    #[test_case(token_works_testdata::hit_terms(),"|穂積しょうたろう" => Ok((
+                token::test_helper::new_test_result_span(1, 1, "穂積しょうたろう"),
+                ParsedToken::Plaintext(token::test_helper::new_test_result_span(0, 1, "|"))
+            )))]
+    #[test_case(token_works_testdata::fire_terms(),"\"炎\"の穂積しょうたろう" => Ok((
+                token::test_helper::new_test_result_span(5, 1, "の穂積しょうたろう"),
+                ParsedToken::Term{
+                    body:token::test_helper::new_test_result_span(0, 1, "\"炎\""),
+                    term_id:Id::new("term_id1".into()),
+                }
+            )))]
     fn context_token_works(terms: Vec<term::Term>, input: &str) -> IResult {
         let ctx = ParseContext::new(Arc::new(TermMap::new(terms)));
         ctx.token(token::ParsedSpan::new(input))
