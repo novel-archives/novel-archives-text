@@ -232,7 +232,7 @@ mod tests {
     */
 
     fn default_ctx() -> ParseContext {
-        ParseContext::new(Arc::new(HashMap::new()))
+        ParseContext::new(Arc::new(BTreeMap::new()))
     }
 
     #[test_case("|漢字$かんじ$"=> Ok((token::test_helper::new_test_result_span(18, 1, ""),
