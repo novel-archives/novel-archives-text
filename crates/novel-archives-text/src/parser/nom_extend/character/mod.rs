@@ -129,7 +129,11 @@ pub fn is_able_to_annotation(c: char) -> bool {
 }
 
 pub fn is_plaintext(c: char) -> bool {
-    !(is_start_directive(c) || is_any_space(c) || is_any_newline(c) || is_kanji(c))
+    !(is_start_directive(c)
+        || is_any_space(c)
+        || is_start_term(c)
+        || is_any_newline(c)
+        || is_kanji(c))
 }
 
 #[cfg(test)]
