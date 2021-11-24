@@ -2,13 +2,13 @@ use nom::bytes::complete::{take_while1, take_while_m_n};
 use nom::sequence::{delimited, tuple};
 use nom_extend::character::complete;
 use std::cmp::Reverse;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use super::*;
 
 #[derive(Debug, PartialEq, Clone, new)]
 pub struct ParseContext {
-    term_map: Arc<HashMap<String, term::Term>>,
+    term_map: Arc<BTreeMap<String, term::Term>>,
 }
 
 impl ParseContext {
@@ -30,41 +30,6 @@ impl ParseContext {
             },
         ))
     }
-
-    /*
-    pub fn token<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
-        let fragment = input.fragment();
-        let term_map = &self.term_map.0;
-        let first = fragment
-            .chars()
-            .next()
-            .ok_or_else(|| new_error(input, nom::error::ErrorKind::TakeTill1))?;
-
-        let mut found_key = false;
-        if let Ok(index) = term_map.binary_search_by_key(&first, |(k, _)| *k) {
-            found_key = true;
-            let (_, terms) = term_map.get(index).unwrap();
-
-            if let Ok((input, token)) = self.term(input, terms) {
-                return Ok((input, token));
-            }
-        }
-        if let Ok((input, token)) = alt((
-            |input| self.directive_annotation(input),
-            parse_complete::kanji_ruby,
-            parse_complete::directive_ruby,
-            parse_complete::directive_other,
-            parse_complete::space,
-            parse_complete::newline,
-        ))(input)
-        {
-            return Ok((input, token));
-        }
-
-        take_while_m_n(1, 1, move |c| character::is_plaintext(c) || found_key)(input)
-            .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
-    }
-    */
 
     pub fn directive_annotation<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
         tuple((
