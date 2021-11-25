@@ -36,7 +36,7 @@ pub enum Token {
 impl ToString for Token {
     fn to_string(&self) -> std::string::String {
         match self {
-            Token::Term { body, .. } => body.body().clone(),
+            Token::Term { body, .. } => format!("\"{}\"", body.body()),
             Token::Ruby { body, ruby } => format!("|{}《{}》", body.body(), ruby.body()),
             Token::Spase(body) => body.body().clone(),
             Token::KanjiRuby { body, ruby } => format!("{}({})", body.body(), ruby.body()),
@@ -71,6 +71,7 @@ mod test {
     #[test_case(Token::new_spase(Span::new("  ".into(),Position::default()))=>"  ")]
     #[test_case(Token::new_ignore(Span::new("|".into(),Position::default()))=>"|")]
     #[test_case(Token::new_new_line(Span::new("\n".into(),Position::default()))=>"\n")]
+    #[test_case(Token::new_term(Span::new("ほげ".into(),Position::default()),Id::new("term_id1".into()))=>"\"ほげ\"")]
     fn token_to_string_works(token: Token) -> String {
         token.to_string()
     }
