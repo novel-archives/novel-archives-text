@@ -1,70 +1,62 @@
 use super::*;
-use nom::branch::alt;
-use std::iter::FromIterator;
+use nom::InputTake;
+use std::{iter::FromIterator, ops::Deref};
 
-#[derive(new, Debug, PartialEq)]
+#[derive(new, Debug, PartialEq, Clone)]
 pub struct TextIterator<'a> {
     context: ParseContext,
     input: ParsedSpan<'a>,
+    #[new(default)]
+    next_token: Option<Box<ParsedToken<'a>>>,
 }
 
 impl<'a> Iterator for TextIterator<'a> {
     type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
-        let (input, parsed) = alt((
-            |input| self.context.term(input),
-            |input| self.context.directive_annotation(input),
-            complete::kanji_ruby,
-            complete::directive_ruby,
-            complete::directive_other,
-            complete::term_directive_other,
-            complete::space,
-            complete::newline,
-            complete::plaintext,
-        ))(self.input)
-        .ok()?;
-        self.input = input;
-        Some(parsed)
+        if let Some(token) = &self.next_token {
+            let token = token.deref().clone();
+            self.next_token = None;
+            Some(token)
+        } else {
+            let (input, parsed) = self.context.token(self.input).ok()?;
+            match parsed {
+                ParsedToken::Plaintext(span) => {
+                    let mut input = input;
+                    let mut len = span.fragment().len();
+                    loop {
+                        match self.context.token(input) {
+                            Ok((new_input, token)) => match token {
+                                ParsedToken::Plaintext(span) => {
+                                    input = new_input;
+                                    len += span.fragment().len();
+                                }
+                                _ => {
+                                    let (_, parsed) = self.input.take_split(len);
+                                    self.next_token = Some(Box::new(token));
+                                    self.input = new_input;
+                                    return Some(ParsedToken::Plaintext(parsed));
+                                }
+                            },
+                            Err(_) => {
+                                let (input, parsed) = self.input.take_split(len);
+                                self.input = input;
+                                return Some(ParsedToken::Plaintext(parsed));
+                            }
+                        }
+                    }
+                }
+                _ => {
+                    self.input = input;
+                    Some(parsed)
+                }
+            }
+        }
     }
 }
 
 impl<'a> FromIterator<ParsedToken<'a>> for TokenText {
     fn from_iter<I: IntoIterator<Item = ParsedToken<'a>>>(iter: I) -> Self {
-        struct PlainSpanHolder {
-            body: String,
-            position: Position,
-        }
-        let mut plain_span = None;
-        let mut tokens = vec![];
-        for parsed_token in iter.into_iter() {
-            match parsed_token {
-                ParsedToken::Plaintext(body) => {
-                    if plain_span.is_none() {
-                        plain_span = Some(PlainSpanHolder {
-                            body: String::new(),
-                            position: Position::new(
-                                body.location_line() as usize,
-                                body.location_offset(),
-                            ),
-                        })
-                    }
-                    let mut old_plain_span = plain_span.unwrap();
-                    old_plain_span.body.push_str(body.fragment());
-                    plain_span = Some(old_plain_span);
-                }
-                _ => {
-                    if let Some(span) = plain_span {
-                        tokens.push(Token::Plaintext(Span::new(span.body, span.position)));
-                        plain_span = None;
-                    }
-                    tokens.push(parsed_token.into());
-                }
-            }
-        }
-        if let Some(span) = plain_span {
-            tokens.push(Token::Plaintext(Span::new(span.body, span.position)));
-        }
-        TokenText::new(tokens)
+        TokenText::new(iter.into_iter().map(|token| token.into()).collect())
     }
 }
 

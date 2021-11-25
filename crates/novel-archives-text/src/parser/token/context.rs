@@ -1,8 +1,10 @@
+use nom::branch::alt;
 use nom::bytes::complete::{take_while1, take_while_m_n};
 use nom::sequence::{delimited, tuple};
 use nom_extend::character::complete;
 use std::cmp::Reverse;
 use std::collections::BTreeMap;
+use token::complete as token_complete;
 
 use super::*;
 
@@ -29,6 +31,20 @@ impl ParseContext {
                 term_id: term.id().clone(),
             },
         ))
+    }
+
+    pub fn token<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {
+        alt((
+            |input| self.term(input),
+            |input| self.directive_annotation(input),
+            token_complete::kanji_ruby,
+            token_complete::directive_ruby,
+            token_complete::directive_other,
+            token_complete::term_directive_other,
+            token_complete::space,
+            token_complete::newline,
+            token_complete::plaintext,
+        ))(input)
     }
 
     pub fn directive_annotation<'a>(&self, input: ParsedSpan<'a>) -> IResult<'a> {

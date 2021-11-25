@@ -5,7 +5,7 @@ mod context;
 pub mod iterator;
 mod span;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ParsedToken<'a> {
     Term {
         body: ParsedSpan<'a>,
