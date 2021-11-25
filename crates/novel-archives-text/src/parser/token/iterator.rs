@@ -1,21 +1,24 @@
 use super::*;
 use nom::InputTake;
-use std::{iter::FromIterator, ops::Deref};
+use std::{
+    iter::FromIterator,
+    ops::{Deref, DerefMut},
+};
 
 #[derive(new, Debug, PartialEq, Clone)]
 pub struct TextIterator<'a> {
     context: ParseContext,
     input: ParsedSpan<'a>,
     #[new(default)]
-    next_token: Option<Box<ParsedToken<'a>>>,
+    next_token: Box<Option<ParsedToken<'a>>>,
 }
 
 impl<'a> Iterator for TextIterator<'a> {
     type Item = ParsedToken<'a>;
     fn next(&mut self) -> std::option::Option<<Self as std::iter::Iterator>::Item> {
-        if let Some(token) = &self.next_token {
-            let token = token.deref().clone();
-            self.next_token = None;
+        if let Some(token) = self.next_token.deref() {
+            let token = token.clone();
+            *self.next_token.deref_mut() = None;
             Some(token)
         } else {
             let (input, parsed) = self.context.token(self.input).ok()?;
@@ -32,7 +35,7 @@ impl<'a> Iterator for TextIterator<'a> {
                                 }
                                 _ => {
                                     let (_, parsed) = self.input.take_split(len);
-                                    self.next_token = Some(Box::new(token));
+                                    *self.next_token.deref_mut() = Some(token);
                                     self.input = new_input;
                                     return Some(ParsedToken::Plaintext(parsed));
                                 }
