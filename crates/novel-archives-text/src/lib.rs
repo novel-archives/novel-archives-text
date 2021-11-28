@@ -6,7 +6,7 @@ extern crate derive_getters;
 
 mod id;
 pub mod parser;
-mod term;
+pub mod term;
 mod token;
 
 pub use id::*;
