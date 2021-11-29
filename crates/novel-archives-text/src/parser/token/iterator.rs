@@ -171,6 +171,25 @@ mod tests {
                 Token::new_plaintext(Span::new("《《not傍点確認》".into(),Position::new(1,0))),
             ],
             ))]
+    #[test_case(token_works_testdata::other_terms(),"《not傍点》" => TokenText::new(
+            vec![
+                Token::new_plaintext(Span::new("《not傍点》".into(),Position::new(1,0))),
+            ],
+            );"not_emphasis_1")]
+    #[test_case(token_works_testdata::other_terms(),"《》《not傍点》は" => TokenText::new(
+            vec![
+                Token::new_plaintext(Span::new("《》《not傍点》は".into(),Position::new(1,0))),
+            ],
+            );"not_emphasis_2")]
+    #[test_case(token_works_testdata::other_terms(),"《》：ルビ\n（例）私《わたくし》は" => TokenText::new(
+            vec![
+                Token::new_plaintext(Span::new("《》：ルビ".into(),Position::new(1,0))),
+                Token::new_new_line(Span::new("\n".into(),Position::new(1,15))),
+                Token::new_plaintext(Span::new("（例）".into(),Position::new(2,16))),
+                Token::new_kanji_ruby(Span::new("私".into(),Position::new(2,25)),Span::new("わたくし".into(),Position::new(2,31))),
+                Token::new_plaintext(Span::new("は".into(),Position::new(2,46))),
+            ],
+            ))]
     fn context_token_works(terms: Vec<term::Term>, input: &str) -> TokenText {
         let iter = TextIterator::new(
             ParseContext::new(Arc::new(

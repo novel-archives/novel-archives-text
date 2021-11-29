@@ -2,6 +2,7 @@ use super::*;
 use nom::branch::alt;
 use nom::bytes::complete::{take_while, take_while1, take_while_m_n};
 pub use nom::character::complete::*;
+use nom::InputTake;
 
 pub type NomIResult<'a> = nom::IResult<token::ParsedSpan<'a>, token::ParsedSpan<'a>>;
 pub fn any_newline(input: token::ParsedSpan) -> NomIResult {
@@ -91,6 +92,18 @@ pub fn start_directive(input: token::ParsedSpan) -> NomIResult {
 
 pub fn able_to_emphasis_mark(input: token::ParsedSpan) -> NomIResult {
     take_while1(complete::is_able_to_emphasis_mark)(input)
+}
+
+pub fn start_emphasis_mark(input: token::ParsedSpan) -> NomIResult {
+    let (input1, parsed1) = take_while_m_n(1, 1, character::is_start_emphasis_mark)(input)?;
+    let (_, parsed2) = take_while_m_n(1, 1, character::is_start_emphasis_mark)(input1)?;
+    Ok(input.take_split(parsed1.fragment().len() + parsed2.fragment().len()))
+}
+
+pub fn end_emphasis_mark(input: token::ParsedSpan) -> NomIResult {
+    let (input1, parsed1) = take_while_m_n(1, 1, character::is_end_emphasis_mark)(input)?;
+    let (_, parsed2) = take_while_m_n(1, 1, character::is_end_emphasis_mark)(input1)?;
+    Ok(input.take_split(parsed1.fragment().len() + parsed2.fragment().len()))
 }
 
 #[cfg(test)]
@@ -223,5 +236,25 @@ mod tests {
         ))))]
     fn punctuation1_works(input: &str) -> nom::IResult<token::ParsedSpan, token::ParsedSpan> {
         punctuation1(token::ParsedSpan::new(input))
+    }
+
+    #[test_case("《《傍点確認》》"=> Ok((token::test_helper::new_test_result_span(6, 1, "傍点確認》》"),token::test_helper::new_test_result_span(0, 1, "《《"))))]
+    #[test_case("《ほほnot傍点》は"=> Err(nom::Err::Error(nom::error::Error::new(
+            token::test_helper::new_test_result_span(3, 1, "ほほnot傍点》は"),
+            nom::error::ErrorKind::TakeWhileMN,
+        ))))]
+    fn start_emphasis_mark_works(
+        input: &str,
+    ) -> nom::IResult<token::ParsedSpan, token::ParsedSpan> {
+        start_emphasis_mark(token::ParsedSpan::new(input))
+    }
+
+    #[test_case("》》ほほ"=> Ok((token::test_helper::new_test_result_span(6, 1, "ほほ"),token::test_helper::new_test_result_span(0, 1, "》》"))))]
+    #[test_case("》はほ"=> Err(nom::Err::Error(nom::error::Error::new(
+            token::test_helper::new_test_result_span(3, 1, "はほ"),
+            nom::error::ErrorKind::TakeWhileMN,
+        ))))]
+    fn end_emphasis_mark_works(input: &str) -> nom::IResult<token::ParsedSpan, token::ParsedSpan> {
+        end_emphasis_mark(token::ParsedSpan::new(input))
     }
 }

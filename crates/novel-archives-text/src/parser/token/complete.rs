@@ -71,9 +71,9 @@ pub fn directive_ruby(input: ParsedSpan) -> IResult {
 
 pub fn emphasis_mark(input: ParsedSpan) -> IResult {
     delimited(
-        take_while_m_n(2, 2, character::is_start_emphasis_mark),
+        complete::start_emphasis_mark,
         complete::able_to_emphasis_mark,
-        take_while_m_n(2, 2, character::is_end_emphasis_mark),
+        complete::end_emphasis_mark,
     )(input)
     .map(|(input, parsed)| (input, ParsedToken::EmphasisMark(parsed)))
 }
@@ -163,6 +163,7 @@ mod tests {
     }
 
     #[test_case("《《傍点確認》》"=> Ok((token::test_helper::new_test_result_span(24, 1, ""),ParsedToken::EmphasisMark(token::test_helper::new_test_result_span(6, 1, "傍点確認")))))]
+    #[test_case("《》《not傍点》は" => Err(new_error(token::test_helper::new_test_result_span(3, 1, "》《not傍点》は"),nom::error::ErrorKind::TakeWhileMN)))]
     fn emphasis_mark_works(input: &str) -> IResult {
         emphasis_mark(token::ParsedSpan::new(input))
     }
