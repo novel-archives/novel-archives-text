@@ -27,6 +27,7 @@ pub enum Token {
     Ruby { body: Span, ruby: Span },
     KanjiRuby { body: Span, ruby: Span },
     Annotation { body: Span, description: TokenText },
+    EmphasisMark(Span),
     Spase(Span),
     Ignore(Span),
     Plaintext(Span),
@@ -38,6 +39,7 @@ impl ToString for Token {
         match self {
             Token::Term { body, .. } => format!("\"{}\"", body.body()),
             Token::Ruby { body, ruby } => format!("|{}《{}》", body.body(), ruby.body()),
+            Token::EmphasisMark(body) => body.body().clone(),
             Token::Spase(body) => body.body().clone(),
             Token::KanjiRuby { body, ruby } => format!("{}({})", body.body(), ruby.body()),
             Token::Annotation { body, description } => {

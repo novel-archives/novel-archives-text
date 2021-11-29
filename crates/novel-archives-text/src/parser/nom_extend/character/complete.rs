@@ -89,6 +89,10 @@ pub fn start_directive(input: token::ParsedSpan) -> NomIResult {
     take_while_m_n(1, 1, character::is_start_directive)(input)
 }
 
+pub fn able_to_emphasis_mark(input: token::ParsedSpan) -> NomIResult {
+    take_while1(complete::is_able_to_emphasis_mark)(input)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

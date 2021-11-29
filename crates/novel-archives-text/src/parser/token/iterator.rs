@@ -156,6 +156,21 @@ mod tests {
                 Token::new_term(Span::new("穂積しょう".into(),Position::new(2,17)),Id::new("term_id1".into())),
             ],
             );"new_line_with_term")]
+    #[test_case(token_works_testdata::other_terms(),"《《傍点確認》》" => TokenText::new(
+            vec![
+                Token::new_emphasis_mark(Span::new("傍点確認".into(),Position::new(1,6))),
+            ],
+            ))]
+    #[test_case(token_works_testdata::other_terms(),"《《《other傍点確認》》" => TokenText::new(
+            vec![
+                Token::new_emphasis_mark(Span::new("《other傍点確認".into(),Position::new(1,6))),
+            ],
+            ))]
+    #[test_case(token_works_testdata::other_terms(),"《《not傍点確認》" => TokenText::new(
+            vec![
+                Token::new_plaintext(Span::new("《《not傍点確認》".into(),Position::new(1,0))),
+            ],
+            ))]
     fn context_token_works(terms: Vec<term::Term>, input: &str) -> TokenText {
         let iter = TextIterator::new(
             ParseContext::new(Arc::new(

@@ -69,6 +69,15 @@ pub fn directive_ruby(input: ParsedSpan) -> IResult {
     }
 }
 
+pub fn emphasis_mark(input: ParsedSpan) -> IResult {
+    delimited(
+        take_while_m_n(2, 2, character::is_start_emphasis_mark),
+        complete::able_to_emphasis_mark,
+        take_while_m_n(2, 2, character::is_end_emphasis_mark),
+    )(input)
+    .map(|(input, parsed)| (input, ParsedToken::EmphasisMark(parsed)))
+}
+
 pub fn directive_other(input: ParsedSpan) -> IResult {
     take_while_m_n(1, 1, character::is_start_directive)(input)
         .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
@@ -76,6 +85,11 @@ pub fn directive_other(input: ParsedSpan) -> IResult {
 
 pub fn term_directive_other(input: ParsedSpan) -> IResult {
     take_while_m_n(1, 1, character::is_start_term)(input)
+        .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
+}
+
+pub fn emphasis_mark_start_other(input: ParsedSpan) -> IResult {
+    take_while_m_n(1, 1, character::is_start_emphasis_mark)(input)
         .map(|(input, parsed)| (input, ParsedToken::Plaintext(parsed)))
 }
 
@@ -146,5 +160,10 @@ mod tests {
     #[test_case("｜(かんじ)"=> Ok((token::test_helper::new_test_result_span(3, 1, "(かんじ)"),ParsedToken::Ignore(token::test_helper::new_test_result_span(0, 1, "｜"))));"wide_directive")]
     fn directive_ruby_works(input: &str) -> IResult {
         directive_ruby(token::ParsedSpan::new(input))
+    }
+
+    #[test_case("《《傍点確認》》"=> Ok((token::test_helper::new_test_result_span(24, 1, ""),ParsedToken::EmphasisMark(token::test_helper::new_test_result_span(6, 1, "傍点確認")))))]
+    fn emphasis_mark_works(input: &str) -> IResult {
+        emphasis_mark(token::ParsedSpan::new(input))
     }
 }

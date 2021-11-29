@@ -5,7 +5,7 @@ mod context;
 pub mod iterator;
 mod span;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, new)]
 pub enum ParsedToken<'a> {
     Term {
         body: ParsedSpan<'a>,
@@ -24,6 +24,7 @@ pub enum ParsedToken<'a> {
         description: iterator::TextIterator<'a>,
     },
     Space(ParsedSpan<'a>),
+    EmphasisMark(ParsedSpan<'a>),
     Ignore(ParsedSpan<'a>),
     Plaintext(ParsedSpan<'a>),
     NewLine(ParsedSpan<'a>),
@@ -49,6 +50,7 @@ impl<'a> From<ParsedToken<'a>> for crate::Token {
             ParsedToken::KanjiRuby { body, ruby } => {
                 Token::new_kanji_ruby(body.into(), ruby.into())
             }
+            ParsedToken::EmphasisMark(body) => Token::new_emphasis_mark(body.into()),
             ParsedToken::Space(body) => Token::new_spase(body.into()),
             ParsedToken::Annotation { body, description } => {
                 Token::new_annotation(body.into(), description.collect())

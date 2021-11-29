@@ -128,10 +128,22 @@ pub fn is_able_to_annotation(c: char) -> bool {
     !(is_any_newline(c) || is_end_annotation(c))
 }
 
+pub fn is_start_emphasis_mark(c: char) -> bool {
+    c == '《' || c == '⟪'
+}
+pub fn is_end_emphasis_mark(c: char) -> bool {
+    c == '》' || c == '⟫'
+}
+
+pub fn is_able_to_emphasis_mark(c: char) -> bool {
+    !is_end_emphasis_mark(c)
+}
+
 pub fn is_plaintext(c: char) -> bool {
     !(is_start_directive(c)
         || is_any_space(c)
         || is_start_term(c)
+        || is_start_emphasis_mark(c)
         || is_any_newline(c)
         || is_kanji(c))
 }
