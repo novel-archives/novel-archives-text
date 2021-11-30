@@ -136,7 +136,7 @@ pub fn is_end_emphasis_mark(c: char) -> bool {
 }
 
 pub fn is_able_to_emphasis_mark(c: char) -> bool {
-    !is_end_emphasis_mark(c)
+    !(is_end_emphasis_mark(c) || is_any_newline(c))
 }
 
 pub fn is_plaintext(c: char) -> bool {

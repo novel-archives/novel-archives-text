@@ -163,6 +163,7 @@ mod tests {
     }
 
     #[test_case("《《傍点確認》》"=> Ok((token::test_helper::new_test_result_span(24, 1, ""),ParsedToken::EmphasisMark(token::test_helper::new_test_result_span(6, 1, "傍点確認")))))]
+    #[test_case("《《傍点\n確認》》" => Err(new_error(token::test_helper::new_test_result_span(12, 1, "\n確認》》"),nom::error::ErrorKind::TakeWhileMN)))]
     #[test_case("《》《not傍点》は" => Err(new_error(token::test_helper::new_test_result_span(3, 1, "》《not傍点》は"),nom::error::ErrorKind::TakeWhileMN)))]
     fn emphasis_mark_works(input: &str) -> IResult {
         emphasis_mark(token::ParsedSpan::new(input))
