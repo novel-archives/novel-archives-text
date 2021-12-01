@@ -75,7 +75,8 @@ mod tests {
                 Id::new("term_id1".into()),
                 "穂積しょう".into(),
                 "".into(),
-                TokenText::new(vec![]),
+                "".into(),
+                false,
             )]
         }
 
@@ -84,7 +85,8 @@ mod tests {
                 Id::new("term_id1".into()),
                 "その他用語".into(),
                 "".into(),
-                TokenText::new(vec![]),
+                "".into(),
+                false,
             )]
         }
     }

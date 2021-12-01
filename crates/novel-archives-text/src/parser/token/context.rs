@@ -108,7 +108,8 @@ mod tests {
             Id::new(id.into()),
             text.into(),
             "む".into(),
-            TokenText::new(vec![]),
+            "".into(),
+            false,
         )
     }
     #[test_case(vec![

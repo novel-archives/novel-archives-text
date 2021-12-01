@@ -5,5 +5,6 @@ pub struct Term {
     id: Id<Term>,
     body: String,
     ruby: String,
-    description: TokenText,
+    description: String,
+    has_detail: bool,
 }
