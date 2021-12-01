@@ -104,13 +104,7 @@ mod tests {
     use test_case::test_case;
 
     fn new_sample_term(id: &str, text: &str) -> term::Term {
-        term::Term::new(
-            Id::new(id.into()),
-            text.into(),
-            "む".into(),
-            "".into(),
-            false,
-        )
+        term::Term::new(Id::new(id), text.into(), "む".into(), "".into(), false)
     }
     #[test_case(vec![
         new_sample_term("term_id1", "無"),
@@ -122,7 +116,7 @@ mod tests {
     ],"\"無\""
         => Ok((token::test_helper::new_test_result_span(5, 1, ""),ParsedToken::Term{
         body: token::test_helper::new_test_result_span(1, 1, "無"),
-        term_id:Id::new("term_id1".into()),
+        term_id:Id::new("term_id1"),
         }))
     ;"quote無")]
     #[test_case(vec![
@@ -130,7 +124,7 @@ mod tests {
     ],"\"穂積\"しょう"
         => Ok((token::test_helper::new_test_result_span(8, 1, "しょう"),ParsedToken::Term{
         body: token::test_helper::new_test_result_span(1, 1, "穂積"),
-        term_id:Id::new("term_id1".into()),
+        term_id:Id::new("term_id1"),
         }))
     )]
     #[test_case(vec![
@@ -149,7 +143,7 @@ mod tests {
     ],"\"穂積しょう\""
         => Ok((token::test_helper::new_test_result_span(17, 1, ""),ParsedToken::Term{
         body: token::test_helper::new_test_result_span(1, 1, "穂積しょう"),
-        term_id:Id::new("term_id1".into()),
+        term_id:Id::new("term_id1"),
         }))
     )]
     fn context_term_works(terms: Vec<term::Term>, input: &str) -> IResult {

@@ -72,7 +72,7 @@ mod tests {
         use super::*;
         pub fn hit_terms() -> Vec<term::Term> {
             vec![term::Term::new(
-                Id::new("term_id1".into()),
+                Id::new("term_id1"),
                 "穂積しょう".into(),
                 "".into(),
                 "".into(),
@@ -82,7 +82,7 @@ mod tests {
 
         pub fn other_terms() -> Vec<term::Term> {
             vec![term::Term::new(
-                Id::new("term_id1".into()),
+                Id::new("term_id1"),
                 "その他用語".into(),
                 "".into(),
                 "".into(),
@@ -98,7 +98,7 @@ mod tests {
             );"not_quote_term")]
     #[test_case(token_works_testdata::hit_terms(),"\"穂積しょう\"" => TokenText::new(
             vec![
-                Token::new_term(Span::new("穂積しょう".into(),Position::new(1,1)),Id::new("term_id1".into())),
+                Token::new_term(Span::new("穂積しょう".into(),Position::new(1,1)),Id::new("term_id1")),
             ],
             );"quote_term")]
     #[test_case(token_works_testdata::hit_terms(),"穂積しょうたろう" => TokenText::new(
@@ -108,7 +108,7 @@ mod tests {
             );"not_quote_after_sentence")]
     #[test_case(token_works_testdata::hit_terms(),"\"穂積しょう\"たろう" => TokenText::new(
             vec![
-                Token::new_term(Span::new("穂積しょう".into(),Position::new(1,1)),Id::new("term_id1".into())),
+                Token::new_term(Span::new("穂積しょう".into(),Position::new(1,1)),Id::new("term_id1")),
                 Token::new_plaintext(Span::new("たろう".into(),Position::new(1,17))),
             ],
             );"quote_after_sentence")]
@@ -155,7 +155,7 @@ mod tests {
             vec![
                 Token::new_plaintext(Span::new("穂積しょう".into(),Position::new(1,0))),
                 Token::new_new_line(Span::new("\n".into(),Position::new(1,15))),
-                Token::new_term(Span::new("穂積しょう".into(),Position::new(2,17)),Id::new("term_id1".into())),
+                Token::new_term(Span::new("穂積しょう".into(),Position::new(2,17)),Id::new("term_id1")),
             ],
             );"new_line_with_term")]
     #[test_case(token_works_testdata::other_terms(),"《《傍点確認》》" => TokenText::new(

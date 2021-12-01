@@ -1,1 +1,1 @@
-pub type Id<T> = phantom_newtype::Id<T, String>;
+pub type Id<T> = utils_rs::id::Id<T, String>;
